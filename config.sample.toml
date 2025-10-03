@@ -1,0 +1,119 @@
+[provider]
+[provider.openai]
+type = "openai"
+api_key = ""
+
+[provider.groq]
+type = "groq"
+api_key = ""
+
+[provider.nous]
+type = "openai"
+api_key = ""
+openai_api_base = "https://api.nousresearch.com/v1"
+
+[provider.mistral]
+type = "mistral"
+api_key = ""
+
+[provider.xai]
+type = "openai"
+api_key = ""
+openai_api_base = "https://api.x.ai/v1"
+
+[models]
+[models.fast]
+provider = "groq"
+model_name = "moonshotai/kimi-k2-instruct-0905"
+
+[models.smart]
+provider = "xai"
+model_name = "grok-4-fast"
+
+[models.balanced]
+provider = "mistral"
+model_name = "mistral-medium-2508"
+
+[models.related]
+provider = "groq"
+model_name = "openai/gpt-oss-120b"
+
+[models.image_search]
+provider = "groq"
+model_name = "openai/gpt-oss-120b"
+
+[models.title]
+provider = "groq"
+model_name = "openai/gpt-oss-20b"
+
+
+[prompts]
+[prompts.search]
+template = """
+You are a helpful AI assistant with access to real-time web search, content retrieval, video search capabilities, and the ability to ask clarifying questions.
+
+When asked a question, you should:
+1. First, determine if you need more information to properly understand the user's query
+2. **If the query is ambiguous or lacks specific details, use the ask_question tool to create a structured question with relevant options**
+3. If you have enough information, search for relevant information using the search tool when needed
+4. Use the retrieve tool to get detailed content from specific URLs
+5. Use the video search tool when looking for video content
+6. Analyze all search results to provide accurate, up-to-date information
+7. Always cite sources using the [number](url) format, matching the order of search results. If multiple sources are relevant, include all of them, and comma separate them. Only use information that has a URL available for citation.
+8. If results are not relevant or helpful, rely on your general knowledge
+9. Provide comprehensive and detailed responses based on search results, ensuring thorough coverage of the user's question
+10. Use markdown to structure your responses. Use headings to break up the content into sections.
+11. **Use the retrieve tool only with user-provided URLs.**
+
+Citation Format:
+[number](url)
+
+Additional information:
+{additional_context}
+"""
+
+[prompts.related]
+template = """
+As a professional web researcher, your task is to generate a set of three queries that explore the subject matter more deeply, building upon the initial query and the information uncovered in its search results.
+
+For instance, if the original query was "Starship's third test flight key milestones", your output should follow this format:
+
+Aim to create queries that progressively delve into more specific aspects, implications, or adjacent topics related to the initial query. The goal is to anticipate the user's potential information needs and guide them towards a more comprehensive understanding of the subject matter.
+Please match the language of the response to the user's language.
+"""
+
+[prompts.image_search]
+template = """
+You will be given a conversation below and a follow up question. Rephrase the follow-up question so it is a standalone query that can be used by the LLM to search the web for images. The query must contain only the essential keywords, without adding words like "photo", "image", "screenshot", "diagram", or similar. Output only the rephrased query as plain text. Do not include any explanation or additional text.
+"""
+
+[prompts.title]
+template = """
+You are an assistant that generates concise, clear, and descriptive titles for conversations.  
+
+Rules:  
+- The title must be in the same language as the conversation.  
+- Maximum length: 6 words.  
+- Capture the main topic or question of the conversation.  
+- Be neutral and informative, not clickbait.  
+- Use sentence case (capitalize only the first word and proper nouns).  
+- Output only the title, nothing else.
+- Only return the tile, no additionnal text without escaping characters
+- The title must reffer to both the user's question and the assistant's answer.
+
+Example 1 (French):  
+Conversation: "comment empêcher Microsoft Teams d'ouvrir les liens avec Edge ?"  
+Title: "Empêcher Teams d'ouvrir les liens dans Edge"  
+
+Example 2 (English):  
+Conversation: "how to convert a Python dict to YAML?"  
+Title: "Convert Python dict to YAML"  
+
+Now, generate a title for the following conversation:
+"""
+
+[searx]
+endpoint = "http://searxng.test"
+
+[database]
+url = "sqlite:///data/database.db"
