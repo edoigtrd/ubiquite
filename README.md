@@ -104,5 +104,9 @@ I only tested SQLite but any url supported by [SQLModel](https://sqlmodel.tiango
 
 # Roadmap
 
-- [ ] Basic frontend
 - [ ] Containerization with Docker
+- [ ] Source integration
+- [ ] Focus mode
+- [ ] Image search
+- [ ] Discovery page
+- [ ] Better settings page
