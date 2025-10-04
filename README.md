@@ -3,7 +3,12 @@
 > Ubiquité is an open-source Perplexity clone.
 
 This project is inspired by other Perplexity clones such as [Perplexica](https://github.com/ItzCrazyKns/Perplexica) and [Morphic](https://github.com/miurla/morphic).
-I made this project because both Peplexica and Morphic were not exactly what i needed.
+I made this project because both Perplexica and Morphic were not exactly what I needed.
+
+Compared to those projects, Ubiquité aims to improve on the following points:
+- **Multiple LLM providers**: You can choose between multiple LLM providers.
+- **Easy model switching**: You can easily switch between models for different use cases while maintaining the ability to connect to multiple AI providers.
+- **Unified and complete configuration**: All configuration is done in a single file, with all the options available for each provider and model, this file is editable from the UI.
 
 # Features
 
@@ -37,7 +42,7 @@ Supported providers are:
 - mistral
 - groq
 
-If your provider is availible to an openai compatible endpoint (xai, nous ...), you can use the `openai` type and set the `openai_api_base` to your provider's endpoint.
+If your provider is available to an openai compatible endpoint (xai, nous ...), you can use the `openai` type and set the `openai_api_base` to your provider's endpoint.
 
 Technically speaking every parameter in one model will be unpacked to the appropriate langchain provider class.
 
@@ -61,7 +66,7 @@ Standard presets are:
 
 ### Prompts
 
-Every prompt is parameterable 
+Each prompt is configurable
 ```toml
 [prompts]
 [prompts.search]
@@ -101,12 +106,26 @@ url = "sqlite:///data/ubiquite.db"
 ```
 I only tested SQLite but any url supported by [SQLModel](https://sqlmodel.tiangolo.com/) should work.
 
+# Architecture
+
+Ubiquité is composed of two main parts:
+- The backend: A FastAPI server that handles the LLM requests, search requests and database.
+- The frontend: A React app that handles the user interface.
+
+The database is a SQLite database managed by SQLModel.
+All the LLM requests are handled by LangChain.
+
+# Contributing
+
+Contributions are welcome!  
+If you'd like to add features or improve the project, please fork the repo and submit a pull request.
 
 # Roadmap
 
 - [ ] Containerization with Docker
 - [ ] Source integration
 - [ ] Focus mode
+- [ ] Add a second widget
 - [ ] Image search
 - [ ] Discovery page
 - [ ] Better settings page
