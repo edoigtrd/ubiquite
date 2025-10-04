@@ -1,0 +1,15 @@
+fastapi==0.118.0
+fonttools==4.56.0
+glom==24.11.0
+html2text==2024.2.26
+langchain==0.3.27
+langchain_core==0.3.78
+lxml==5.3.1
+openai==2.1.0
+pydantic==2.11.10
+Requests==2.32.5
+sqlmodel==0.0.25
+stealth_requests==2.0.4
+timezonefinder==8.1.0
+tomli==2.2.1
+uvicorn==0.37.0
