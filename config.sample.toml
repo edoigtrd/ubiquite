@@ -10,7 +10,7 @@ api_key = ""
 [provider.nous]
 type = "openai"
 api_key = ""
-openai_api_base = "https://api.nousresearch.com/v1"
+openai_api_base = "https://inference-api.nousresearch.com/v1"
 
 [provider.mistral]
 type = "mistral"
@@ -117,3 +117,10 @@ endpoint = "http://searxng.test"
 
 [database]
 url = "sqlite:///data/database.db"
+
+[weather]
+open_meteo_url = "https://api.open-meteo.com/v1/forecast"
+icons_base_url = "https://github.com/basmilius/weather-icons/tree/dev/production/fill/all"
+
+[nominatim]
+url = "https://nominatim.openstreetmap.org/reverse"

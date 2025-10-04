@@ -29,7 +29,7 @@ In the provider section, you can configure the LLM provider you want to use.
 [provider.openai]
 type = "openai"
 api_key = "your_api_key"
-openai_api_base = "https://api.openai.com/v1"
+openai_api_base = "https://api.openai.com/v1" # Optional, only if you want to use a different endpoint default is OpenAI's endpoint
 ```
 
 Supported providers are:
