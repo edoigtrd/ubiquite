@@ -37,7 +37,7 @@ Compared to those projects, Ubiquité aims to improve on the following points:
    docker-compose -p ubiquite up -d
    ```
 
-4. Access the application at `http://localhost:8080`. You can edit the configuration file from the UI (go to the settings).
+4. Access the application at `http://localhost:6003`. You can edit the configuration file from the UI (go to the settings).
 
 
 # How to configure
