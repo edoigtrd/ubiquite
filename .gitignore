@@ -219,3 +219,5 @@ data/
 config.toml
 
 notebooks/
+
+.vscode/
