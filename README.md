@@ -39,6 +39,7 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 
 4. Access the application at `http://localhost:6003`. You can edit the configuration file from the UI (go to the settings).
 
+*Note: Ubiquité needs your location to work properly which don't work on "unsafes" origins, if you are on your own domain you can set it as trusted in chrome using chrome://flags/#unsafely-treat-insecure-origin-as-secure* 
 
 # How to configure
 
@@ -145,6 +146,7 @@ If you'd like to add features or improve the project, please fork the repo and s
 
 # Roadmap
 
+- [ ] Conversation deletion
 - [ ] Source integration
 - [ ] Focus mode
 - [ ] Add a second widget
