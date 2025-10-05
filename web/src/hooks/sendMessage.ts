@@ -1,5 +1,6 @@
 // src/hooks/sendMessage.ts
 import { chatStream } from "@/signals/chatStream";
+import {getContextSync} from "@/lib/contextstore";
 
 export async function sendMessage(parent_uuid: string | null, content: string, mode = "speed") {
   // reset stream
@@ -9,6 +10,8 @@ export async function sendMessage(parent_uuid: string | null, content: string, m
   if (parent_uuid) params.set("parent", parent_uuid); // <-- seulement si présent
   params.set("preset", mode);
   params.set("q", content);
+  const ctx = JSON.stringify(getContextSync());
+  params.set("additional_context", ctx || "");
 
   const url = `/api/chat?${params.toString()}`;
   const res = await fetch(url);

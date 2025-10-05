@@ -6,9 +6,11 @@ import ChatPage from "@/components/ChatPage";
 import { submittedQuery } from "@/signals/search";
 import LibraryPage from "@/components/LibraryPage";
 import DiscoverPage from "@/components/DiscoverPage";
-
+import {initContext} from "@/lib/contextstore";
 
 type Page = "search" | "settings" | "new_chat" | "chat" | "library" | "discover";
+
+initContext();
 
 export default function App() {
   const [activePage, setActivePage] = useState<Page>("search");

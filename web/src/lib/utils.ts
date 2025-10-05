@@ -11,6 +11,13 @@ export function getCookie(name: string): string | null {
   return found ? decodeURIComponent(found[1]) : null;
 }
 
+export function setCookie(name: string, value: string, duration: number) {
+  // duration in milliseconds
+  const expires = new Date();
+  expires.setTime(expires.getTime() + duration);
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+}
+
 export function scrollToBottom(container?: HTMLElement | null) {
   if (!container) return;
   container.scrollTo({
