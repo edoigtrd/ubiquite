@@ -5,7 +5,7 @@ from uuid import UUID
 from langchain_core.agents import AgentFinish
 from pydantic import BaseModel
 from typing import Callable, Any, Optional
-
+import glom
 
 class MessageOutput(BaseModel):
     content: str
@@ -37,15 +37,17 @@ class StreamingCallbackHandler(BaseCallbackHandler):
         run_tags = kwargs.get("tags", [])
         if isinstance(token, list) :
             token = token[0]
+        e_type = 'new_token'
         if isinstance(token, dict) :
             if "type" in token and token["type"] == "text" :
                 token = token["text"]
             else :
-                return
+                e_type = 'new_thinking_token'
+                token = glom.glom(token, "thinking.0.text", default="")
         self.queue.put_nowait(
             json.dumps(
                 {
-                    "event": "new_token",
+                    "event": e_type,
                     "id": self.current,
                     "data": token,
                     "parent": str(run_parent) if run_parent else None,

@@ -5,13 +5,15 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { Icon } from "@iconify/react";
-// IMPORTANT (une seule fois globalement, typiquement dans main.tsx):
-// import "katex/dist/katex.min.css";
+import ThinkingCapsule from "@/components/ThinkingCapsule";
+
 
 type Props = {
   role: "human" | "ai";
   content: string;
   uuid?: string;
+  thinking?: string | undefined | null;
+  isThinking?: boolean | undefined | null;
 };
 
 // Convert \(...\) -> $...$ et \[...\] -> $$...$$
@@ -44,7 +46,7 @@ function normalizeMathDelimiters(md: string): string {
     .join("");
 }
 
-export default function ChatMessage({ role, content, uuid }: Props) {
+export default function ChatMessage({ role, content, uuid , thinking, isThinking }: Props) {
   const isUser = role === "human";
 
   // Pré-normaliser les délimiteurs math avant ReactMarkdown
@@ -65,6 +67,7 @@ export default function ChatMessage({ role, content, uuid }: Props) {
             className="w-6 h-6 mb-2"
           />
         </div>
+        {thinking && <ThinkingCapsule content={thinking} isThinking={isThinking} />}
 
         <ReactMarkdown
           remarkPlugins={[

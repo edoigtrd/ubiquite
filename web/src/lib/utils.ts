@@ -31,3 +31,7 @@ export function scrollToBottomInstant(container?: HTMLElement | null) {
   container.scrollTop = container.scrollHeight;
 }
 
+export function countPrintableChars(str: string): number {
+  const printable = str.replace(/[^\x21-\x7E]/g, "");
+  return printable.length;
+}

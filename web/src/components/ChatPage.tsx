@@ -9,11 +9,12 @@ import { getChat } from "@/hooks/chat";
 import AskBar, { querySignal } from "@/components/AskBar";
 import { sendMessage } from "@/hooks/sendMessage";
 import { useSignalEffect } from "@preact/signals-react";
-import { getCookie } from "@/lib/utils";
+import { getCookie, countPrintableChars } from "@/lib/utils";
 import { chatStream } from "@/signals/chatStream";
 
 
 import { submittedQuery, clearQuery } from "@/signals/search";
+import ThinkingCapsule from "./ThinkingCapsule";
 
 type Msg = { uuid: string; role: "human" | "ai"; content: string };
 type Props = { chatId?: string };
@@ -64,6 +65,8 @@ export default function ChatPage({ chatId }: Props) {
   const [chatTitle, setChatTitle] = useState("Chat");
   const [messages, setMessages] = useState<Msg[]>([]);
   const [userInput, setUserInput] = useState<string | null>(null);
+  const [thinking, setThinking] = useState<string | null>(null);
+  const [isThinking, setIsThinking] = useState<boolean>(false);
   const [aiWriting, setAiWriting] = useState("");
 
   const lastUuidRef = useRef<string | null>(null);
@@ -205,7 +208,10 @@ export default function ChatPage({ chatId }: Props) {
       case "heartbeat":
       case "llm_end":
         break;
-
+      case 'new_thinking_token':
+        setIsThinking(false);
+        setThinking((prev => (prev ?? "") + (evt.data || "")));
+        break;
       case "prelude": {
         const { query_uuid, response_uuid, conversation_uuid } = evt.data || {};
 
@@ -242,6 +248,9 @@ export default function ChatPage({ chatId }: Props) {
         if (token.length > 0) {
           setAiWriting((prev) => prev + token);
           scrollToBottom(listRef.current, false);
+        }
+        if (countPrintableChars(aiWriting) > 1 && evt.data.trim().length > 0) {
+          setIsThinking(true);
         }
         break;
       }
@@ -301,16 +310,27 @@ export default function ChatPage({ chatId }: Props) {
 
           <div className="flex-1 px-6 py-4 min-h-0">
             <div ref={listRef} className="space-y-4 h-full overflow-y-auto scroll-hide">
-              {messages.map((m) => (
-                <ChatMessage
-                  key={m.uuid}
-                  role={m.role}
-                  uuid={m.uuid}
-                  content={m.content}
-                />
-              ))}
-              {userInput && <ChatMessage role="human" content={userInput} />}
-              {aiWriting && <ChatMessage role="ai" content={aiWriting} />}
+              {messages.map((m, i) => {
+                const isLastAi =
+                  m.role === "ai" &&
+                  messages.slice(i + 1).every(next => next.role !== "ai");
+
+                const currentThinking =
+                  isLastAi && aiWriting === "" ? thinking : null;
+
+                return (
+                  <ChatMessage
+                    key={m.uuid}
+                    role={m.role}
+                    uuid={m.uuid}
+                    thinking={currentThinking}
+                    isThinking={isThinking}
+                    content={m.content}
+                  />
+                );
+              })}
+              {userInput && <ChatMessage role="human" content={userInput}  />}
+              {aiWriting && <ChatMessage role="ai" content={aiWriting} thinking={thinking} isThinking={isThinking} />}
             </div>
           </div>
 
