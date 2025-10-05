@@ -19,9 +19,26 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 - Unified and complete configuration.
 - Streaming responses.
 
-# Installation
+# Installation (with Docker)
 
-The docker is not ready yet
+1. Clone the repository:
+   ```bash
+   git clone git@github.com:edoigtrd/ubiquite.git
+    cd ubiquite
+    ```
+
+2. Move the example configuration file:
+   ```bash
+   mv config.example.toml config.toml
+   ```
+
+3. Run the application using Docker Compose:
+   ```bash
+   docker-compose -p ubiquite up -d
+   ```
+
+4. Access the application at `http://localhost:8080`. You can edit the configuration file from the UI (go to the settings).
+
 
 # How to configure
 

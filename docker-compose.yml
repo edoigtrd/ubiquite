@@ -1,5 +1,4 @@
 version: "3.9"
-name: ubiquite
 
 services:
   backend:
@@ -33,5 +32,5 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "5173:80"
+      - "6003:80"
     restart: unless-stopped
