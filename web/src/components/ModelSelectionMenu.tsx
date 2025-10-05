@@ -1,4 +1,3 @@
-// src/features/search/components/SpeedModeMenu.tsx
 import { useState, useEffect } from "react"
 import { Icon } from "@iconify/react"
 import {
@@ -10,7 +9,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import {cn} from "@/lib/utils"
-
+import { setCookie, getCookie } from "@/lib/utils"
 
 
 export type Mode = "fast" | "balanced" | "smart"
@@ -34,17 +33,19 @@ export default function ModelSelectionMenu({
 
   const select = (m: Mode) => {
     setMode(m)
-    document.cookie = `mode=${m}; path=/; max-age=31536000`
+    setCookie("mode", m, 31536000)
     onChange?.(m)
   }
 
   // read mode from cookie on first render
   useEffect(() => {
-    const match = document.cookie.match(/(?:^|; )mode=([^;]*)/)
-    if (match) {
-      const mode = match[1] as Mode
-      setMode(mode)
-      onChange?.(mode)
+    if (!getCookie("mode")) {
+      setCookie("mode", "fast", 31536000)
+    }
+    const cookieMode = getCookie("mode") as Mode | null
+    if (cookieMode && ["fast", "balanced", "smart"].includes(cookieMode)) {
+      setMode(cookieMode)
+      onChange?.(cookieMode)
     }
   }, [])
 
