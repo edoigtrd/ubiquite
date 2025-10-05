@@ -250,6 +250,9 @@ export default function ChatPage({ chatId }: Props) {
       }
 
       case "new_token": {
+        // sometimes event.data is not a string but a JSON object
+        if (!evt.data) break;
+        if (typeof evt.data !== "string" && typeof evt.data !== "number") break;
         const token = typeof evt.data === "string" ? evt.data : "";
         if (token.length > 0) {
           setAiWriting((prev) => prev + token);
