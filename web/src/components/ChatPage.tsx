@@ -143,11 +143,9 @@ export default function ChatPage({ chatId }: Props) {
     if (inFlightRef.current) return;
     inFlightRef.current = true;
 
-    // on est en création de conv
     newConvModeRef.current = true;
     hasHydratedOnceRef.current = false;
 
-    // afficher le message humain immédiatement
     setUserInput(q);
     setAiWriting("");
     currentQueryRef.current = null;
@@ -202,6 +200,8 @@ export default function ChatPage({ chatId }: Props) {
     switch (evt.event) {
       case "ok":
       case "start":
+        setAiWriting(" ");
+        break;
       case "heartbeat":
       case "llm_end":
         break;
