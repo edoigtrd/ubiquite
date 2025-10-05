@@ -21,18 +21,22 @@ type = "openai"
 api_key = ""
 openai_api_base = "https://api.x.ai/v1"
 
+[provider.anthropic]
+type = "anthropic"
+api_key = ""
+
 [models]
 [models.fast]
 provider = "groq"
 model_name = "moonshotai/kimi-k2-instruct-0905"
 
 [models.smart]
-provider = "xai"
-model_name = "grok-4-fast"
+provider = "anthropic"
+model_name = "claude-sonnet-4-5-20250929"
 
 [models.balanced]
 provider = "mistral"
-model_name = "mistral-medium-2508"
+model_name = "magistral-medium-latest"
 
 [models.related]
 provider = "groq"
@@ -100,6 +104,7 @@ Rules:
 - Output only the title, nothing else.
 - Only return the tile, no additionnal text without escaping characters
 - The title must reffer to both the user's question and the assistant's answer.
+- Start with an emoji
 
 Example 1 (French):  
 Conversation: "comment empêcher Microsoft Teams d'ouvrir les liens avec Edge ?"  
@@ -113,14 +118,14 @@ Now, generate a title for the following conversation:
 """
 
 [searx]
-endpoint = "http://searxng.test"
+endpoint = "http://host.docker.internal:6001"
 
 [database]
 url = "sqlite:///data/database.db"
 
 [weather]
 open_meteo_url = "https://api.open-meteo.com/v1/forecast"
-icons_base_url = "https://github.com/basmilius/weather-icons/tree/dev/production/fill/all"
+icons_base_url = "https://raw.githubusercontent.com/basmilius/weather-icons/refs/heads/dev/design/fill/final"
 
 [nominatim]
 url = "https://nominatim.openstreetmap.org/reverse"
