@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    image: ubiquite-backend:latest
+    image: ghcr.io/edoigtrd/ubiquite-backend:latest
     container_name: ubiquite-backend
     environment:
       - PYTHONUNBUFFERED=1
@@ -24,7 +24,7 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile.frontend
-    image: ubiquite-frontend:latest
+    image: ghcr.io/edoigtrd/ubiquite-frontend:latest
     container_name: ubiquite-frontend
     depends_on:
       backend:
