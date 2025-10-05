@@ -9,6 +9,9 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 - **Multiple LLM providers**: You can choose between multiple LLM providers.
 - **Easy model switching**: You can easily switch between models for different use cases while maintaining the ability to connect to multiple AI providers.
 - **Unified and complete configuration**: All configuration is done in a single file, with all the options available for each provider and model, this file is editable from the UI.
+- **KaTeX support**: Math rendering with KaTeX.
+
+![Interface](assets/interface.png)
 
 # Features
 
