@@ -4,6 +4,9 @@ glom==24.11.0
 html2text==2024.2.26
 langchain==0.3.27
 langchain_core==0.3.78
+langchain-openai==0.3.7
+langchain-mistralai==0.2.5
+langchain-groq==0.2.3
 lxml==5.3.1
 openai==2.1.0
 pydantic==2.11.10
