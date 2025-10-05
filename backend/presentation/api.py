@@ -20,10 +20,10 @@ from backend.infrastructure import persistence as db
 
 app = FastAPI()
 
-ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+CONFIG_PATH = (Path(__file__).resolve().parents[2] / "config.toml")
+
+
+ALLOWED_ORIGINS = load_config(CONFIG_PATH).get("server.allowed_origins", [])
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,7 +33,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-CONFIG_PATH = (Path(__file__).resolve().parents[2] / "config.toml")
 
 
 @app.get("/")

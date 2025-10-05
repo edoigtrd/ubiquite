@@ -129,3 +129,9 @@ icons_base_url = "https://raw.githubusercontent.com/basmilius/weather-icons/refs
 
 [nominatim]
 url = "https://nominatim.openstreetmap.org/reverse"
+
+[server]
+allowed_origins = [
+    "http://localhost:6003",
+    "http://127.0.0.1:6003",
+]
