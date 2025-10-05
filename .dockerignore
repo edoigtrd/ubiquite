@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+web/node_modules/
+web/dist/
+.git/
+.gitignore
+.vscode/
+*.log
+data/*.db-journal
+**/.mypy_cache/
+**/.pytest_cache/
+notebooks/

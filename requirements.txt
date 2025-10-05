@@ -7,8 +7,9 @@ langchain_core==0.3.78
 langchain-openai==0.3.7
 langchain-mistralai==0.2.5
 langchain-groq==0.2.3
+langchain-anthropic==0.3.21
 lxml==5.3.1
-openai==2.1.0
+openai==1.109.1
 pydantic==2.11.10
 Requests==2.32.5
 sqlmodel==0.0.25

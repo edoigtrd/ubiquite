@@ -1,0 +1,37 @@
+version: "3.9"
+name: ubiquite
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: ubiquite-backend:latest
+    container_name: ubiquite-backend
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HOST_LOCAL_BASEURL=http://host.docker.internal:9000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./config.toml:/app/config.toml
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/ || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.frontend
+    image: ubiquite-frontend:latest
+    container_name: ubiquite-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+    restart: unless-stopped
