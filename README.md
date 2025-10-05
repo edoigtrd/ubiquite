@@ -145,7 +145,6 @@ If you'd like to add features or improve the project, please fork the repo and s
 
 # Roadmap
 
-- [ ] Containerization with Docker
 - [ ] Source integration
 - [ ] Focus mode
 - [ ] Add a second widget
