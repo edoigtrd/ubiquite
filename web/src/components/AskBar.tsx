@@ -9,7 +9,7 @@ export const querySignal = signal("");
 
 
 export default function AskBar() {
-  const [mode, setMode] = useState<Mode>("speed");
+  const [mode, setMode] = useState<Mode>("fast");
   const [query, setQuery] = useState("");
 
   function send() {

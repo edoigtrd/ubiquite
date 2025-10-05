@@ -13,10 +13,10 @@ import {cn} from "@/lib/utils"
 
 
 
-export type Mode = "speed" | "balanced" | "smart"
+export type Mode = "fast" | "balanced" | "smart"
 
 const OPTIONS: { key: Mode; title: string; desc: string; icon: string; disabled?: boolean }[] = [
-  { key: "speed",    title: "Speed",    desc: "Prioritize speed and get the quickest possible answer.", icon: "iconoir:flash" },
+  { key: "fast",    title: "Speed",    desc: "Prioritize speed and get the quickest possible answer.", icon: "iconoir:flash" },
   { key: "balanced", title: "Balanced", desc: "Find the right balance between speed and accuracy.",      icon: "iconoir:shopping-code" },
   { key: "smart",  title: "Quality", desc: "Get the most thorough and accurate answer.",       icon: "iconoir:star-solid" },
 ]
@@ -30,7 +30,7 @@ export default function ModelSelectionMenu({
   onChange?: (m: Mode) => void
   className?: string
 }) {
-  const [mode, setMode] = useState<Mode>((value ?? "speed") as Mode)
+  const [mode, setMode] = useState<Mode>((value ?? "fast") as Mode)
 
   const select = (m: Mode) => {
     setMode(m)
@@ -59,8 +59,8 @@ export default function ModelSelectionMenu({
           )}
           
         >
-          <Icon icon={mode === "speed" ? "iconoir:flash" : mode === "balanced" ? "iconoir:shopping-code" : "iconoir:star-solid"} className="w-5 h-5 opacity-90" />
-          <span className="text-sm">{mode === "speed" ? "Speed" : mode === "balanced" ? "Balanced" : "Quality"}</span>
+          <Icon icon={mode === "fast" ? "iconoir:flash" : mode === "balanced" ? "iconoir:shopping-code" : "iconoir:star-solid"} className="w-5 h-5 opacity-90" />
+          <span className="text-sm">{mode === "fast" ? "Speed" : mode === "balanced" ? "Balanced" : "Quality"}</span>
           <Icon icon="iconoir:nav-arrow-down" className="w-4 h-4 opacity-80" />
         </Button>
       </DropdownMenuTrigger>
