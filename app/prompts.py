@@ -1,1 +1,0 @@
-from backend.application.prompts import build_common_prompt  # shim
