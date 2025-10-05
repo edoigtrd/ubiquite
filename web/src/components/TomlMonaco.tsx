@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import type { OnMount } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
-import { registerToml } from "../monaco/tomlLanguage";
+import { registerToml } from "@/monaco/tomlLanguage";
 import { parse as parseToml } from "toml";
 
 type Props = {

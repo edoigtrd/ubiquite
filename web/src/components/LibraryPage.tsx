@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { getChats } from "../hooks/chat";
+import { getChats } from "@/hooks/chat";
 
 type Props = {
   content: string;
@@ -29,9 +29,9 @@ export default function LibraryPage() {
         const response = await getChats();
         if (mounted) {
             // Sort by updated_at descending
-            response.data?.conversations?.sort((a, b) => {
-                return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-            });
+      response.data?.conversations?.sort((a: any, b: any) => {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
           setConversations(response.data?.conversations ?? []);
         }
       } catch (error) {

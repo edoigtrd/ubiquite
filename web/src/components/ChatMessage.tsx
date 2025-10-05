@@ -1,5 +1,5 @@
 // components/ChatMessage.tsx
-import React from "react";
+// React import not required with new JSX transform
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";

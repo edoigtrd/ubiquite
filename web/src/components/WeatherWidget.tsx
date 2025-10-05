@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getMeteo } from "../hooks/meteo";
-import { getUserLocation } from "../lib/gps";
+import { getMeteo } from "@/hooks/meteo";
+import { getUserLocation } from "@/lib/gps";
 
 type WeatherData = {
   city: string;

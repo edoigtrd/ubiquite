@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { getSettings, saveSettings } from "@/hooks/settings"
-import TomlMonaco from "./TomlMonaco"
+import TomlMonaco from "@/components/TomlMonaco"
 type SettingsResponse = {
   data: string
 }
@@ -20,7 +20,7 @@ export default function SettingsPage() {
       <TomlMonaco
         key={loading ? "loading" : (settingsData ? "ready" : "empty")}
         initialValue={loading ? "Loading..." : settingsData || "# No settings available"}
-        onSave={async (c) => { await saveSettings(c) }}
+  onSave={async (c: string) => { await saveSettings(c) }}
       />
     </div>
   )

@@ -1,11 +1,11 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
-import SearchPage from "./components/SearchPage";
-import SettingsPage from "./components/SettingsPage";
-import ChatPage from "./components/ChatPage";
-import { submittedQuery, clearQuery } from "./signals/search";
-import LibraryPage from "./components/LibraryPage";
-import DiscoverPage from "./components/DiscoverPage";
+import SearchPage from "@/components/SearchPage";
+import SettingsPage from "@/components/SettingsPage";
+import ChatPage from "@/components/ChatPage";
+import { submittedQuery } from "@/signals/search";
+import LibraryPage from "@/components/LibraryPage";
+import DiscoverPage from "@/components/DiscoverPage";
 
 
 type Page = "search" | "settings" | "new_chat" | "chat" | "library" | "discover";
@@ -53,7 +53,7 @@ export default function App() {
     }
   }
 
-  function signalHandler(q: string) {
+  function signalHandler(_q: string) {
     changePage("new_chat");
   }
 
@@ -78,7 +78,7 @@ export default function App() {
     }
 
     // subscribe to submittedQuery
-    const unsubscribe = submittedQuery.subscribe((q) => {
+    const unsubscribe = submittedQuery.subscribe((q: string | null) => {
       if (q) signalHandler(q);
     });
 

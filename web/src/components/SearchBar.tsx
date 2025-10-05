@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react";
-import ModelSelectionMenu from "./ModelSelectionMenu";
+import ModelSelectionMenu from "@/components/ModelSelectionMenu";
 import { useState } from "react";
-import { inputValue, submitQuery } from "../signals/search";
+import { submitQuery } from "@/signals/search";
 
 
 export default function SearchBar() {

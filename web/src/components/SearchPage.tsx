@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
-import WeatherWidget from "./WeatherWidget";
-import SearchBar from "./SearchBar";
+import WeatherWidget from "@/components/WeatherWidget";
+import SearchBar from "@/components/SearchBar";
 
 function Title() {
   return (

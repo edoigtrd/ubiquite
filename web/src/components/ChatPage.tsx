@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Icon } from "@iconify/react";
-import ChatMessage from "./ChatMessage";
+import ChatMessage from "@/components/ChatMessage";
 import { getChat } from "@/hooks/chat";
-import AskBar, { querySignal } from "./AskBar";
+import AskBar, { querySignal } from "@/components/AskBar";
 import { sendMessage } from "@/hooks/sendMessage";
 import { useSignalEffect } from "@preact/signals-react";
 import { getCookie } from "@/lib/utils";
@@ -153,14 +153,14 @@ export default function ChatPage({ chatId }: Props) {
     currentQueryRef.current = null;
     currentResponseRef.current = null;
 
-    sendMessage(null, q, getCookie("mode"));
+  sendMessage(null, q, (getCookie("mode") as string) ?? undefined);
     scrollToBottom(listRef.current, false);
 
     clearQuery?.();
   }, [chatId]);
 
   useEffect(() => {
-    const unsub = querySignal.subscribe((q) => {
+  const unsub = querySignal.subscribe((q: string) => {
       if (!q) return;
       if (inFlightRef.current) return;
       inFlightRef.current = true;
@@ -172,7 +172,7 @@ export default function ChatPage({ chatId }: Props) {
         setAiWriting("");
         currentQueryRef.current = null;
         currentResponseRef.current = null;
-        sendMessage(parent, q, getCookie("mode"));
+  sendMessage(parent, q, (getCookie("mode") as string) ?? undefined);
         querySignal.value = "";
         scrollToBottom(listRef.current, false);
         return;
@@ -183,7 +183,7 @@ export default function ChatPage({ chatId }: Props) {
       setAiWriting("");
       currentQueryRef.current = null;
       currentResponseRef.current = null;
-      sendMessage(null, q, getCookie("mode"));
+  sendMessage(null, q, (getCookie("mode") as string) ?? undefined);
       querySignal.value = "";
       scrollToBottom(listRef.current, false);
     });

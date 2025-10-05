@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
-import { Input } from "./ui/input";
-import ModelSelectionMenu, { type Mode } from "./ModelSelectionMenu";
+import { Input } from "@/components/ui/input";
+import ModelSelectionMenu, { type Mode } from "@/components/ModelSelectionMenu";
 import { signal} from "@preact/signals-react";
 
 export const querySignal = signal("");
@@ -32,8 +32,8 @@ export default function AskBar() {
             placeholder="Ask anything..."
             className="min-h-[52px] max-h-40 bg-[#1b1d22] border-white/10 text-neutral-200 flex-1 min-w-0"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") send(); }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === "Enter") send(); }}
           />
           <Button className="h-[52px] px-4" onClick={send}>
             <Icon icon="iconoir:send" className="w-4 h-4" />
