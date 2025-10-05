@@ -38,9 +38,12 @@ openai_api_base = "https://api.openai.com/v1" # Optional, only if you want to us
 ```
 
 Supported providers are:
-- openai
-- mistral
+- anthropic
 - groq
+- mistral
+- openai
+
+*Note: the codebase make it easy to add new providers, look into infrastructure/providers.py*
 
 If your provider is available to an openai compatible endpoint (xai, nous ...), you can use the `openai` type and set the `openai_api_base` to your provider's endpoint.
 

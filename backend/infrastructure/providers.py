@@ -7,6 +7,7 @@ PROVIDERS = {
     "openai": ("langchain_openai", "ChatOpenAI"),
     "mistral": ("langchain_mistralai", "ChatMistralAI"),
     "groq": ("langchain_groq", "ChatGroq"),
+    "anthropic": ("langchain_anthropic", "ChatAnthropic"),
 }
 
 

@@ -35,6 +35,13 @@ class StreamingCallbackHandler(BaseCallbackHandler):
     def on_llm_new_token(self, token: str, **kwargs) -> None:
         run_parent = kwargs.get("parent_run_id")
         run_tags = kwargs.get("tags", [])
+        if isinstance(token, list) :
+            token = token[0]
+        if isinstance(token, dict) :
+            if "type" in token and token["type"] == "text" :
+                token = token["text"]
+            else :
+                return
         self.queue.put_nowait(
             json.dumps(
                 {
@@ -112,8 +119,13 @@ class BasicCallbackHandler(BaseCallbackHandler):
         **_kwargs: Any,
     ) -> Any:
         # skipping thinking tokens and non-string tokens
-        if isinstance(token, dict) or not isinstance(token, str):
-            return
+        if isinstance(token, list) :
+            token = token[0]
+        if isinstance(token, dict) :
+            if "type" in token and token["type"] == "text" :
+                token = token["text"]
+            else :
+                return
         self.buffers.setdefault(run_id, []).append(token)
 
     def on_agent_finish(
