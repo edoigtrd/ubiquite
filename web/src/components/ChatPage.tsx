@@ -9,7 +9,7 @@ import { getChat } from "@/hooks/chat";
 import AskBar, { querySignal } from "./AskBar";
 import { sendMessage } from "@/hooks/sendMessage";
 import { useSignalEffect } from "@preact/signals-react";
-import { getCookie } from "../lib/utils";
+import { getCookie } from "@/lib/utils";
 import { chatStream } from "@/signals/chatStream";
 
 
