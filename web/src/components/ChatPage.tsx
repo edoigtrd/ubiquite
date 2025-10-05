@@ -12,7 +12,7 @@ import { useSignalEffect } from "@preact/signals-react";
 import { getCookie } from "../lib/utils";
 import { chatStream } from "@/signals/chatStream";
 
-// ✅ on lit le signal global posé par App quand il y a ?q=...
+
 import { submittedQuery, clearQuery } from "@/signals/search";
 
 type Msg = { uuid: string; role: "human" | "ai"; content: string };
@@ -66,20 +66,17 @@ export default function ChatPage({ chatId }: Props) {
   const [userInput, setUserInput] = useState<string | null>(null);
   const [aiWriting, setAiWriting] = useState("");
 
-  // chain & conv
   const lastUuidRef = useRef<string | null>(null);
   const currentQueryRef = useRef<string | null>(null);
   const currentResponseRef = useRef<string | null>(null);
   const conversationUuidRef = useRef<string | null>(null);
 
-  // flags anti-doublons / orchestration
   const newConvModeRef = useRef<boolean>(false);
   const urlNormalizedRef = useRef<boolean>(false);
   const hasHydratedOnceRef = useRef<boolean>(false);
   const inFlightRef = useRef<boolean>(false);
   const bootOnceRef = useRef<boolean>(false);
 
-  // scroll
   const listRef = useRef<HTMLDivElement | null>(null);
   function scrollToBottom(target?: HTMLElement | null, smooth = true) {
     if (!target) return;
@@ -91,7 +88,6 @@ export default function ChatPage({ chatId }: Props) {
     );
   }
 
-  // hydrate depuis serveur
   async function loadConversationAndMessages(convUuid: string) {
     const data = await getChat(convUuid);
     const title = data?.data?.conversation?.title || "Untitled";
@@ -110,7 +106,6 @@ export default function ChatPage({ chatId }: Props) {
     scrollToBottom(listRef.current, false);
   }
 
-  // retry titre (sans ré-append local)
   async function refreshTitleWithRetry(convUuid: string, tries = 5, delayMs = 600) {
     for (let i = 0; i < tries; i++) {
       try {
@@ -126,7 +121,6 @@ export default function ChatPage({ chatId }: Props) {
     }
   }
 
-  // === Initial load (chatId connu) — protégé StrictMode ===
   useEffect(() => {
     if (bootOnceRef.current) return;
     bootOnceRef.current = true;
@@ -142,10 +136,9 @@ export default function ChatPage({ chatId }: Props) {
     })();
   }, [chatId]);
 
-  // === Démarrage via signal submittedQuery (posé par App quand il y a ?q=) ===
   useEffect(() => {
-    if (chatId) return;                // si on a déjà une conversation, on ne touche pas
-    const q = submittedQuery.value;    // lit la valeur posée par App
+    if (chatId) return;
+    const q = submittedQuery.value;
     if (!q) return;
     if (inFlightRef.current) return;
     inFlightRef.current = true;
@@ -160,24 +153,20 @@ export default function ChatPage({ chatId }: Props) {
     currentQueryRef.current = null;
     currentResponseRef.current = null;
 
-    // envoyer SANS parent : le backend crée la conversation
     sendMessage(null, q, getCookie("mode"));
     scrollToBottom(listRef.current, false);
 
-    // on peut clear le signal maintenant que c'est consommé
-    clearQuery?.(); // si tu as cette fn, sinon ignore
+    clearQuery?.();
   }, [chatId]);
 
-  // === Envoi normal (parent connu) OU nouvelle conv si pas de parent — protégé par lock ===
   useEffect(() => {
     const unsub = querySignal.subscribe((q) => {
       if (!q) return;
-      if (inFlightRef.current) return; // stream en cours
+      if (inFlightRef.current) return;
       inFlightRef.current = true;
 
       const parent = lastUuidRef.current;
       if (parent) {
-        // conversation existante
         newConvModeRef.current = false;
         setUserInput(q);
         setAiWriting("");
@@ -189,7 +178,6 @@ export default function ChatPage({ chatId }: Props) {
         return;
       }
 
-      // pas de parent -> nouvelle conv
       newConvModeRef.current = true;
       setUserInput(q);
       setAiWriting("");
@@ -221,7 +209,6 @@ export default function ChatPage({ chatId }: Props) {
       case "prelude": {
         const { query_uuid, response_uuid, conversation_uuid } = evt.data || {};
 
-        // normaliser l’URL au plus tôt
         if (conversation_uuid) {
           conversationUuidRef.current = conversation_uuid;
           if (!urlNormalizedRef.current) {
@@ -231,7 +218,6 @@ export default function ChatPage({ chatId }: Props) {
           }
         }
 
-        // commit du message humain (une seule fois)
         if (query_uuid && !currentQueryRef.current) {
           currentQueryRef.current = query_uuid;
           currentResponseRef.current = response_uuid ?? null;
@@ -250,7 +236,6 @@ export default function ChatPage({ chatId }: Props) {
       }
 
       case "new_token": {
-        // sometimes event.data is not a string but a JSON object
         if (!evt.data) break;
         if (typeof evt.data !== "string" && typeof evt.data !== "number") break;
         const token = typeof evt.data === "string" ? evt.data : "";
@@ -267,7 +252,6 @@ export default function ChatPage({ chatId }: Props) {
         const respUuid = currentResponseRef.current ?? crypto.randomUUID();
 
         if (newConvModeRef.current) {
-          // Cas "nouvelle conv": NE PAS appendre localement → hydrate depuis serveur
           setAiWriting("");
           setUserInput(null);
 
@@ -277,7 +261,6 @@ export default function ChatPage({ chatId }: Props) {
             refreshTitleWithRetry(convUuid, 6, 700).catch(() => {});
           }
         } else {
-          // Cas conversation existante: append local
           if (text.length > 0) {
             setMessages((prev) => [
               ...prev,
@@ -288,8 +271,6 @@ export default function ChatPage({ chatId }: Props) {
           setAiWriting("");
           setUserInput(null);
         }
-
-        // 🔓 libérer le lock d’envoi
         inFlightRef.current = false;
 
         scrollToBottom(listRef.current, false);
@@ -298,12 +279,10 @@ export default function ChatPage({ chatId }: Props) {
     }
   });
 
-  // scroll à chaque ajout de message
   useEffect(() => {
     scrollToBottom(listRef.current, false);
   }, [messages.length]);
 
-  // === UI ===
   return (
     <div className="h-full w-full bg-[#0c0d10] text-white">
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-4 h-full min-h-0">
