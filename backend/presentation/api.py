@@ -183,6 +183,10 @@ async def list_conversations():
     conversations = db.list_conversations()
     return {"conversations": conversations}
 
+@app.get("/conversation/delete")
+async def delete_conversation(conversation_uuid: str):
+    db.delete_conversation_by_uuid(conversation_uuid)
+    return {"detail": "Conversation deleted"}
 
 @app.get("/meteo")
 async def meteo(lat: float, lon: float):

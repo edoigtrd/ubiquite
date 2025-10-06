@@ -2,22 +2,9 @@ import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getChats } from "@/hooks/chat";
+import ConversationElem from "./ConversationElem";
+import { deleteChat } from "@/hooks/chat";
 
-type Props = {
-  content: string;
-  onClick?: () => void;
-  uuid?: string;
-};
-
-function ConversationElem({ content, onClick }: Props) {
-  return (
-    <div className="w-full" onClick={onClick}>
-      <div className="w-full rounded-2xl p-4 border bg-[#1b1d22] border-white/10 text-neutral-300">
-        {content}
-      </div>
-    </div>
-  );
-}
 
 export default function LibraryPage() {
   const [conversations, setConversations] = useState<any[]>([]);
@@ -64,6 +51,12 @@ export default function LibraryPage() {
                 content={conv.title}
                 uuid={uuid}
                 onClick={() => (window.location.href = `/chat/${uuid}`)}
+                onDelete={async () => {
+                  if (uuid) {
+                    await deleteChat(uuid);
+                    setConversations((prev) => prev.filter((c) => c.uuid !== uuid));
+                  }
+                }}
               />
             );
           })}

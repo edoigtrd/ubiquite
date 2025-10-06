@@ -242,3 +242,19 @@ def list_conversations() -> List[ConversationDTO]:
         results = session.exec(statement).all()
         dtos = [ConversationDTO.model_validate(c, from_attributes=True) for c in results]
         return dtos
+
+def delete_conversation_by_uuid(conversation_uuid: UUID) -> None:
+    with Session(get_engine()) as session:
+        statement = select(Message).where(
+            Message.conversation_id == select(Conversation.id).where(Conversation.uuid == conversation_uuid).scalar_subquery())
+        results = session.exec(statement).all()
+        for msg in results:
+            session.delete(msg)
+        session.commit()
+
+    with Session(get_engine()) as session:
+        statement = select(Conversation).where(Conversation.uuid == conversation_uuid)
+        result = session.exec(statement).first()
+        if result:
+            session.delete(result)
+            session.commit()
