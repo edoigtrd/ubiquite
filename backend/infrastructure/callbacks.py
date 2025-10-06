@@ -3,6 +3,7 @@ import asyncio
 import json
 from uuid import UUID
 from langchain_core.agents import AgentFinish
+from langchain_core.outputs import LLMResult
 from pydantic import BaseModel
 from typing import Callable, Any, Optional
 import glom
@@ -148,3 +149,11 @@ class BasicCallbackHandler(BaseCallbackHandler):
     ) -> Any:
         messages = [buf for _, buf in self.buffers.items()]
         self.callback(messages)
+
+class LLMEndCallbackHandler(BaseCallbackHandler):
+    def __init__(self, callback: Callable) -> None:
+        super().__init__()
+        self.callback = callback
+
+    def on_llm_end(self, response: LLMResult, *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any) -> Any:
+        return self.callback(response)

@@ -12,6 +12,7 @@ import { useSignalEffect } from "@preact/signals-react";
 import { getCookie, countPrintableChars } from "@/lib/utils";
 import { chatStream } from "@/signals/chatStream";
 
+import SourcesPanel from "./SourcesPanel";
 
 import { submittedQuery, clearQuery } from "@/signals/search";
 import ThinkingCapsule from "./ThinkingCapsule";
@@ -19,47 +20,7 @@ import ThinkingCapsule from "./ThinkingCapsule";
 type Msg = { uuid: string; role: "human" | "ai"; content: string; thinking: string | null | undefined , thoughts?: string | null | undefined};
 type Props = { chatId?: string };
 
-function SourcesPanelPlaceholder() {
-  return (
-    <Card className="bg-[#0f1014] border-white/10">
-      <CardHeader>
-        <CardTitle className="text-neutral-200 flex items-center gap-2">
-          <Icon icon="iconoir:search" className="w-4 h-4" /> Sources
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-white/10 bg-[#15171c] p-3 animate-pulse"
-            >
-              <div className="h-4 w-56 bg-white/10 rounded" />
-              <div className="mt-2 h-3 w-28 bg-white/10 rounded" />
-            </div>
-          ))}
-        </div>
-        <Separator className="my-4 bg-white/10" />
-        <div className="grid grid-cols-1 gap-2">
-          <Button
-            variant="secondary"
-            className="justify-start bg-white/5 hover:bg-white/10 text-white"
-          >
-            <Icon icon="iconoir:media-image" className="w-4 h-4 mr-2" /> Search
-            images
-          </Button>
-          <Button
-            variant="secondary"
-            className="justify-start bg-white/5 hover:bg-white/10 text-white"
-          >
-            <Icon icon="iconoir:video-camera" className="w-4 h-4 mr-2" /> Search
-            videos
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+
 
 export default function ChatPage({ chatId }: Props) {
   const [chatTitle, setChatTitle] = useState("Chat");
@@ -68,6 +29,7 @@ export default function ChatPage({ chatId }: Props) {
   const [thinking, setThinking] = useState<string | null>(null);
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const [aiWriting, setAiWriting] = useState("");
+  const [pannelUUID, setPannelUUID] = useState<string | null>(null);
 
   const lastUuidRef = useRef<string | null>(null);
   const currentQueryRef = useRef<string | null>(null);
@@ -79,6 +41,7 @@ export default function ChatPage({ chatId }: Props) {
   const hasHydratedOnceRef = useRef<boolean>(false);
   const inFlightRef = useRef<boolean>(false);
   const bootOnceRef = useRef<boolean>(false);
+
 
   const listRef = useRef<HTMLDivElement | null>(null);
   function scrollToBottom(target?: HTMLElement | null, smooth = true) {
@@ -210,6 +173,7 @@ export default function ChatPage({ chatId }: Props) {
 
     switch (evt.event) {
       case "ok":
+        setPannelUUID(null);
       case "start":
         setAiWriting(" ");
         break;
@@ -291,10 +255,16 @@ export default function ChatPage({ chatId }: Props) {
         inFlightRef.current = false;
 
         scrollToBottom(listRef.current, false);
+        setPannelUUID(respUuid);
+
         break;
       }
     }
   });
+
+  useEffect(() => {
+    setPannelUUID(lastUuidRef.current);
+  }, [messages]);
 
   useEffect(() => {
     scrollToBottom(listRef.current, false);
@@ -349,7 +319,9 @@ export default function ChatPage({ chatId }: Props) {
         {/* Sidebar */}
         <div className="hidden lg:flex flex-col h-full sticky top-0 right-0">
           <div className="p-4 pt-6 h-full overflow-y-auto space-y-4">
-            <SourcesPanelPlaceholder />
+            <SourcesPanel
+              messageUuid={pannelUUID}
+            />
             <Card className="bg-[#0f1014] border-white/10">
               <CardHeader>
                 <CardTitle className="text-neutral-200 flex items-center gap-2">

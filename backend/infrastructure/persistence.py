@@ -7,7 +7,8 @@ from sqlmodel import Session, select
 from typing import List, Union, Tuple
 from backend.infrastructure.config import load_config
 from backend.infrastructure.utils import Role
-
+import re
+from backend.application.url_tools import get_url_preview
 
 ENGINE = None
 
@@ -54,6 +55,18 @@ class Message(SQLModel, table=True):
     timestamp: str = Field(default_factory=now_iso)
     parent_id: str | None = Field(default=None, foreign_key="message.uuid")
 
+
+class Source(SQLModel, table=True):
+    id : int | None = Field(default=None, primary_key=True)
+    uuid: str = Field(default_factory=lambda: str(uuid4()), index=True, unique=True)
+    message_id: int = Field(foreign_key="message.id")
+    message_uuid: str = Field(foreign_key="message.uuid")
+    conversation_id : int | None = None
+    title: str
+    description: str | None = None
+    image : str | None = None
+    url: str
+    site_name: str | None = None
 
 def create_conversation() -> Conversation:
     conv = Conversation(title=None)
@@ -252,9 +265,46 @@ def delete_conversation_by_uuid(conversation_uuid: UUID) -> None:
             session.delete(msg)
         session.commit()
 
+    # remove sources
+
+
     with Session(get_engine()) as session:
         statement = select(Conversation).where(Conversation.uuid == conversation_uuid)
         result = session.exec(statement).first()
         if result:
             session.delete(result)
             session.commit()
+
+
+def create_source_pipeline(
+    message_uuid: Message
+) :
+    message = get_message_by_uuid(message_uuid)
+    if message is None:
+        raise ValueError("Message not found")
+    urls = re.findall(r'(https?:\/[^\s)]+)', message.content)
+    sources = []
+    for url in urls:
+        preview = get_url_preview(url)
+        source = Source(
+            message_id=message.id,
+            message_uuid=message.uuid,
+            conversation_id=message.conversation_id,
+            title=preview.title or url,
+            description=preview.description,
+            image=preview.image,
+            url=preview.url,
+            site_name=preview.site_name
+        )
+        sources.append(source)
+        with Session(get_engine()) as session:
+            session.add(source)
+            session.commit()
+            session.refresh(source)
+    return sources
+
+def get_sources_by_message_uuid(message_uuid: str) -> List[Source]:
+    with Session(get_engine()) as session:
+        statement = select(Source).where(Source.message_uuid == message_uuid)
+        results = session.exec(statement).all()
+        return results

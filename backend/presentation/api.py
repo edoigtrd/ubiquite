@@ -8,12 +8,13 @@ import asyncio
 import json
 import datetime
 import uuid as uudid
+from functools import partial
 
 from backend.infrastructure.config import load_config, config_check, load_main_config
 from backend.application.context import initialize_context
 from backend.application.agent import build_search_executor, build_title_executor
 from backend.infrastructure.meteo import get_weather_snapshot, reverse_geocode_city
-from backend.infrastructure.callbacks import StreamingCallbackHandler, BasicCallbackHandler, MessageOutput
+from backend.infrastructure.callbacks import StreamingCallbackHandler, BasicCallbackHandler, MessageOutput, LLMEndCallbackHandler
 from backend.infrastructure.utils import get_timezone
 from backend.infrastructure import persistence as db
 
@@ -163,6 +164,12 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
     )
 
+@app.get("/sources/get")
+async def get_sources(uuid: str):
+    sources = db.get_sources_by_message_uuid(uuid)
+    if not sources or len(sources) == 0:
+        sources = db.create_source_pipeline(uuid)
+    return {"sources": sources}
 
 @app.get("/conversation/read")
 async def read_conversation(conversation_id: int | None = Query(None), uuid: UUID | None = Query(None)):
