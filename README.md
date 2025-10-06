@@ -130,6 +130,27 @@ url = "sqlite:///data/ubiquite.db"
 ```
 I only tested SQLite but any url supported by [SQLModel](https://sqlmodel.tiangolo.com/) should work.
 
+### Focus configuration
+
+Focus mode is a featuring that allows you to focus on a specific topic by adding conditions to the search queries.
+The conditions must be compatible with SearX search engine.
+example:
+```toml
+[focuses]
+[focuses.reddit]
+cond = ["site:reddit.com"]
+name = "Reddit"
+icon = "logos:reddit-icon"
+description = "Reddit focus"
+llm_description = ""
+```
+Cond is the list of conditions to add to the search queries, they will be joined with OR operator. You can add as many focuses as you want and specify how they should appear in the UI.
+- cond : List of conditions to add to the search queries. (you can set empty if the llm_description is enough)
+- name : Name of the focus (As displayed in the UI).
+- icon : Icon of the focus [from iconify](https://icones.netlify.app/collection/all)
+- description : Description of the focus (As displayed in the UI).
+- llm_description : Description of the focus to be added to the LLM system prompt.
+
 # Architecture
 
 Ubiquité is composed of two main parts:

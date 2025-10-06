@@ -135,3 +135,36 @@ allowed_origins = [
     "http://localhost:6003",
     "http://127.0.0.1:6003",
 ]
+
+[focuses]
+[focuses.reddit]
+cond = ["site:reddit.com"]
+name = "Reddit"
+icon = "logos:reddit-icon"
+description = "Reddit focus"
+llm_description = ""
+
+[focuses.x]
+cond = ["site:x.com", "site:twitter.com"]
+name = "X"
+icon = "carbon:logo-x"
+description = "X focus"
+llm_description = ""
+
+[focuses.polymarket]
+cond = ["site:polymarket.com"]
+name = "Polymarket"
+icon = "streamline:ethereum"
+description = "Polymarket focus"
+llm_description = """
+**Polymarket focus:**
+Polymarket is a prediction market platform where users can trade on the outcomes of real-world events.
+
+When the user requests a *Polymarket focus*, assume they want a **comprehensive review of current markets and trading trends** on the topic mentioned.
+
+* Always base the search on **current Polymarket data**, including **markets, order books, and user comments**.
+* Perform **only one search query**, using **the main topic keyword only** (e.g., for “Polymarket Trump win 2024”, search “Trump”).
+* Always **check the market dates** and **avoid describing past or closed events** as current.
+* If the user query is vague, search for the **most general main topic** (e.g., if the user says “Polymarket election”, search “election”).
+* Your response should be a **complete review** of the relevant Polymarket markets and their current trends, traders’ opinions, and sentiment.
+"""
