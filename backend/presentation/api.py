@@ -73,12 +73,13 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
     new_message_uuid = uudid.uuid4()
 
     def inner_callback(message: list[MessageOutput]):
-        message = message[-1].content
+        message = message[-1]
         db.create_message(
             role=db.Role.ASSISTANT,
-            content=message,
+            content=message.content,
             parent=db_message.uuid,
             uuid=new_message_uuid,
+            thoughts=message.thinking_content,
         )
 
     def make_title_callback(messages: List[MessageOutput]):

@@ -13,7 +13,6 @@ def build_common_prompt(ctx) -> ChatPromptTemplate:
     template = template.format(additional_context=additional_context)
     prompt = ChatPromptTemplate.from_messages([
         ("system", template),
-        ("human", "{input}"),
         *ctx.history,
         ("placeholder", "{agent_scratchpad}"),
     ])

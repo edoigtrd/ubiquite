@@ -9,6 +9,11 @@ import glom
 
 class MessageOutput(BaseModel):
     content: str
+    thinking_content : Optional[str] = None
+
+    @classmethod
+    def empty(cls) -> "MessageOutput":
+        return cls(content="", thinking_content="")
 
 
 class StreamingCallbackHandler(BaseCallbackHandler):
@@ -105,12 +110,12 @@ class BasicCallbackHandler(BaseCallbackHandler):
     def __init__(self, callback: Callable) -> None:
         super().__init__()
         self.callback = callback
-        self.buffers: dict[UUID, list[str]] = {}
+        self.buffers: dict[UUID, MessageOutput] = {}
 
     def on_llm_start(self, *_args, **_kwargs) -> None:
-        run_id: UUID = _kwargs.get("run_id")
+        run_id: UUID = _kwargs.get("parent_run_id")
         if run_id is not None:
-            self.buffers.setdefault(run_id, [])
+            self.buffers.setdefault(run_id, MessageOutput.empty())
 
     def on_llm_new_token(
         self,
@@ -118,17 +123,20 @@ class BasicCallbackHandler(BaseCallbackHandler):
         *,
         run_id: UUID,
         _parent_run_id: Optional[UUID] = None,
-        **_kwargs: Any,
+        **kwargs: Any,
     ) -> Any:
-        # skipping thinking tokens and non-string tokens
-        if isinstance(token, list) :
-            token = token[0]
-        if isinstance(token, dict) :
-            if "type" in token and token["type"] == "text" :
-                token = token["text"]
-            else :
-                return
-        self.buffers.setdefault(run_id, []).append(token)
+            run_parent = kwargs.get("parent_run_id")
+            run_tags = kwargs.get("tags", [])
+            if isinstance(token, list) :
+                token = token[0]
+            if isinstance(token, dict) :
+                if "type" in token and token["type"] == "text" :
+                    token = token["text"]
+                else :
+                    token = glom.glom(token, "thinking.0.text", default="")
+                    self.buffers[run_parent].thinking_content += token
+                    return
+            self.buffers[run_parent].content += token
 
     def on_agent_finish(
         self,
@@ -138,5 +146,5 @@ class BasicCallbackHandler(BaseCallbackHandler):
         parent_run_id: Optional[UUID] = None,
         **kwargs: Any
     ) -> Any:
-        messages = [MessageOutput(content="".join(buf)) for _, buf in self.buffers.items()]
+        messages = [buf for _, buf in self.buffers.items()]
         self.callback(messages)

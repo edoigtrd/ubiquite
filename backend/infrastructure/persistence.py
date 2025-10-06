@@ -50,6 +50,7 @@ class Message(SQLModel, table=True):
     conversation_id: int = Field(foreign_key="conversation.id")
     role: Role
     content: str
+    thoughts : str | None = Field(default=None)
     timestamp: str = Field(default_factory=now_iso)
     parent_id: str | None = Field(default=None, foreign_key="message.uuid")
 
@@ -85,6 +86,7 @@ def create_message(
     content: str,
     parent: str | None = None,
     uuid: str | None = None,
+    thoughts: str | None = None
 ) -> Tuple[Message, Conversation]:
 
     if parent is None or parent == 0:
@@ -114,6 +116,7 @@ def create_message(
         content=content,
         parent_id=parent_id,
         uuid=uuid,
+        thoughts=thoughts,
     )
     with Session(get_engine()) as session:
         if conversation.id is None:

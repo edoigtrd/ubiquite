@@ -1,7 +1,9 @@
 from langchain.agents import create_tool_calling_agent, AgentExecutor
+from langchain_core.prompts import ChatPromptTemplate
 
 from backend.infrastructure.tools import build_tools
 from backend.application.prompts import build_common_prompt
+
 
 
 def build_search_executor(ctx) -> AgentExecutor:
@@ -22,7 +24,11 @@ def build_search_executor(ctx) -> AgentExecutor:
 
 def build_title_executor(ctx) -> AgentExecutor:
     llm = ctx.llm
-    prompt = build_common_prompt(ctx)
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", ctx.cfg(f"prompts.{ctx.task}.template")),
+        ("user", "{input}"),
+        ("placeholder", "{agent_scratchpad}"),
+    ])
 
     agent = create_tool_calling_agent(llm, [], prompt)
     executor = AgentExecutor(agent=agent, tools=[])

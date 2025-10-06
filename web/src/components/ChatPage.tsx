@@ -16,7 +16,7 @@ import { chatStream } from "@/signals/chatStream";
 import { submittedQuery, clearQuery } from "@/signals/search";
 import ThinkingCapsule from "./ThinkingCapsule";
 
-type Msg = { uuid: string; role: "human" | "ai"; content: string };
+type Msg = { uuid: string; role: "human" | "ai"; content: string; thinking: string | null | undefined , thoughts?: string | null | undefined};
 type Props = { chatId?: string };
 
 function SourcesPanelPlaceholder() {
@@ -91,6 +91,13 @@ export default function ChatPage({ chatId }: Props) {
     );
   }
 
+  function sendMessageWrapper(parent: string | null, content: string, mode?: string) {
+    setThinking(null);
+    setIsThinking(false);
+    setAiWriting("");
+    sendMessage(parent, content, mode);
+  }
+
   async function loadConversationAndMessages(convUuid: string) {
     const data = await getChat(convUuid);
     const title = data?.data?.conversation?.title || "Untitled";
@@ -101,7 +108,8 @@ export default function ChatPage({ chatId }: Props) {
       (m: any, i: number) => ({
         uuid: m.uuid || `msg-${i}`,
         role: m.role === "ai" ? "ai" : "human",
-        content: m.content ?? ""
+        content: m.content ?? "",
+        thinking: m.thoughts ?? null,
       })
     );
     setMessages(fetched);
@@ -154,7 +162,7 @@ export default function ChatPage({ chatId }: Props) {
     currentQueryRef.current = null;
     currentResponseRef.current = null;
 
-  sendMessage(null, q, (getCookie("mode") as string) ?? undefined);
+  sendMessageWrapper(null, q, (getCookie("mode") as string) ?? undefined);
     scrollToBottom(listRef.current, false);
 
     clearQuery?.();
@@ -173,7 +181,7 @@ export default function ChatPage({ chatId }: Props) {
         setAiWriting("");
         currentQueryRef.current = null;
         currentResponseRef.current = null;
-  sendMessage(parent, q, (getCookie("mode") as string) ?? undefined);
+  sendMessageWrapper(parent, q, (getCookie("mode") as string) ?? undefined);
         querySignal.value = "";
         scrollToBottom(listRef.current, false);
         return;
@@ -184,7 +192,7 @@ export default function ChatPage({ chatId }: Props) {
       setAiWriting("");
       currentQueryRef.current = null;
       currentResponseRef.current = null;
-  sendMessage(null, q, (getCookie("mode") as string) ?? undefined);
+  sendMessageWrapper(null, q, (getCookie("mode") as string) ?? undefined);
       querySignal.value = "";
       scrollToBottom(listRef.current, false);
     });
@@ -231,7 +239,7 @@ export default function ChatPage({ chatId }: Props) {
           if (userInput) {
             setMessages((prev) => [
               ...prev,
-              { uuid: query_uuid, role: "human", content: userInput }
+              { uuid: query_uuid, role: "human", content: userInput, thinking: null }
             ]);
             setUserInput(null);
             lastUuidRef.current = query_uuid;
@@ -273,7 +281,7 @@ export default function ChatPage({ chatId }: Props) {
           if (text.length > 0) {
             setMessages((prev) => [
               ...prev,
-              { uuid: respUuid, role: "ai", content: text }
+              { uuid: respUuid, role: "ai", content: text, thinking: thinking }
             ]);
             lastUuidRef.current = respUuid;
           }
@@ -315,8 +323,7 @@ export default function ChatPage({ chatId }: Props) {
                   m.role === "ai" &&
                   messages.slice(i + 1).every(next => next.role !== "ai");
 
-                const currentThinking =
-                  isLastAi && aiWriting === "" ? thinking : null;
+                const currentThinking = m.thinking
 
                 return (
                   <ChatMessage
@@ -324,7 +331,7 @@ export default function ChatPage({ chatId }: Props) {
                     role={m.role}
                     uuid={m.uuid}
                     thinking={currentThinking}
-                    isThinking={isThinking}
+                    isThinking={true}
                     content={m.content}
                   />
                 );
