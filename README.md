@@ -147,7 +147,6 @@ If you'd like to add features or improve the project, please fork the repo and s
 # Roadmap
 
 - [ ] Source integration
-- [ ] Focus mode
 - [ ] Add a second widget
 - [ ] Image search
 - [ ] Discovery page

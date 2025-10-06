@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react";
 import ModelSelectionMenu from "@/components/ModelSelectionMenu";
 import { useState } from "react";
 import { submitQuery } from "@/signals/search";
+import FocusMenu from "@/components/FocusMenu";
 
 
 export default function SearchBar() {
@@ -43,7 +44,7 @@ export default function SearchBar() {
       </div>
 
       <div className="mt-3 flex items-center gap-5 text-xs text-neutral-300/70">
-        <ModelSelectionMenu />
+        <ModelSelectionMenu /> <FocusMenu />
       </div>
     </div>
   );

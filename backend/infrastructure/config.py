@@ -5,7 +5,9 @@ except ModuleNotFoundError:  # pragma: no cover
     import tomli as tomllib  # type: ignore
 from glom import glom
 from io import BytesIO
+from pathlib import Path
 
+CONFIG_PATH = (Path(__file__).resolve().parents[2] / "config.toml")
 
 class GlomWrapper:
     def __init__(self, data: dict):
@@ -38,3 +40,4 @@ def config_check(string: str):
 
 def load_main_config() -> GlomWrapper:
     return load_config("config.toml")
+

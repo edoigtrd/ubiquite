@@ -1,15 +1,22 @@
 // src/hooks/sendMessage.ts
 import { chatStream } from "@/signals/chatStream";
 import {getContextSync} from "@/lib/contextstore";
+import { getCookie } from "@/lib/utils";
 
 export async function sendMessage(parent_uuid: string | null, content: string, mode = "speed") {
   // reset stream
   chatStream.value = [];
 
   const params = new URLSearchParams();
-  if (parent_uuid) params.set("parent", parent_uuid); // <-- seulement si présent
+  if (parent_uuid) params.set("parent", parent_uuid);
   params.set("preset", mode);
   params.set("q", content);
+
+  const focus = getCookie("focus");
+  if (focus && focus !== "none") { 
+    params.set("focus", focus);
+  }
+
   const ctx = JSON.stringify(getContextSync());
   params.set("additional_context", ctx || "");
 

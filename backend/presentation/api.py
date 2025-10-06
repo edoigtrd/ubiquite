@@ -9,7 +9,7 @@ import json
 import datetime
 import uuid as uudid
 
-from backend.infrastructure.config import load_config, config_check
+from backend.infrastructure.config import load_config, config_check, load_main_config
 from backend.application.context import initialize_context
 from backend.application.agent import build_search_executor, build_title_executor
 from backend.infrastructure.meteo import get_weather_snapshot, reverse_geocode_city
@@ -23,7 +23,8 @@ app = FastAPI()
 CONFIG_PATH = (Path(__file__).resolve().parents[2] / "config.toml")
 
 
-ALLOWED_ORIGINS = load_config(CONFIG_PATH).get("server.allowed_origins", [])
+
+ALLOWED_ORIGINS = load_main_config().get("server.allowed_origins", [])
 
 app.add_middleware(
     CORSMiddleware,
@@ -59,7 +60,10 @@ async def set_settings(settings: str = Body(..., embed=True, alias="settings")):
 
 
 @app.get("/chat")
-async def chat(q: str, preset="fast", parent: str = None, additional_context: str = None):
+async def chat(q: str, preset="fast", parent: str = None, additional_context: str = None, focus=None):
+    if focus == "none":
+        focus = None
+    
     db_message, db_conversation = db.create_message(
         role=db.Role.USER,
         content=q,
@@ -112,6 +116,7 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
         callbacks=[handler, callback_handler],
         tool_choice=[],
         history=history,
+        focus=focus,
     )
 
     handler.queue.put_nowait(
@@ -208,5 +213,13 @@ async def selfinfo(lat: float = None, lon: float = None):
             "weekday": local_time.strftime("%A"),
             "time": local_time.strftime("%I:%M:%S %p"),
         }
-
     return {"error": "Location not provided"}, 400
+
+@app.get("/focuses/list")
+async def list_focuses():
+    focuses = load_main_config().get("focuses", {})
+    f = []
+    for k,v in focuses.items():
+        v["id"] = k
+        f.append(v)
+    return {"focuses": f}

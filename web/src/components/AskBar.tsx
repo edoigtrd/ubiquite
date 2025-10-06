@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { Input } from "@/components/ui/input";
 import ModelSelectionMenu, { type Mode } from "@/components/ModelSelectionMenu";
 import { signal} from "@preact/signals-react";
+import FocusMenu from "@/components/FocusMenu";
 
 export const querySignal = signal("");
 
@@ -28,6 +29,7 @@ export default function AskBar() {
             onChange={setMode}
             className="h-[52px]" // match l’input
           />
+          <FocusMenu className="h-[52px]" />
           <Input
             placeholder="Ask anything..."
             className="min-h-[52px] max-h-40 bg-[#1b1d22] border-white/10 text-neutral-200 flex-1 min-w-0"
