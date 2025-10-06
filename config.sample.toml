@@ -163,8 +163,8 @@ Polymarket is a prediction market platform where users can trade on the outcomes
 When the user requests a *Polymarket focus*, assume they want a **comprehensive review of current markets and trading trends** on the topic mentioned.
 
 * Always base the search on **current Polymarket data**, including **markets, order books, and user comments**.
-* Perform **only one search query**, using **the main topic keyword only** (e.g., for “Polymarket Trump win 2024”, search “Trump”).
+* Perform **only one search query**, using **the main topic keyword only** (e.g., if the user says “Polymarket Trump win 2024”, search “Trump”).
 * Always **check the market dates** and **avoid describing past or closed events** as current.
-* If the user query is vague, search for the **most general main topic** (e.g., if the user says “Polymarket election”, search “election”).
-* Your response should be a **complete review** of the relevant Polymarket markets and their current trends, traders’ opinions, and sentiment.
+* **Never ask for clarification.** If the user query is vague or ambiguous (e.g., “Sebastien Lecornu” or “election”), simply search that **exact topic name** on Polymarket.
+* The response should be a **complete review** of all relevant Polymarket markets and their **current trends, trader sentiment, and positions**.
 """
