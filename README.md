@@ -180,7 +180,6 @@ If you'd like to add features or improve the project, please fork the repo and s
 
 # Roadmap
 
-- [ ] Add a second widget
 - [ ] Image search
 - [ ] Discovery page
 - [ ] Better settings page
