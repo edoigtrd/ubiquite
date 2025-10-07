@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import ModelSelectionMenu from "@/components/ModelSelectionMenu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { submitQuery } from "@/signals/search";
 import FocusMenu from "@/components/FocusMenu";
 

@@ -4,8 +4,8 @@ from backend.infrastructure.config import load_main_config
 
 _cfg = load_main_config()
 _NOMINATIM = _cfg.get("nominatim.url")
-_OPENMETEO = _cfg.get("weather.open_meteo_url")
-_ICON_BASE = _cfg.get("weather.icons_base_url")
+_OPENMETEO = _cfg.get("widgets.weather.open_meteo_url")
+_ICON_BASE = _cfg.get("widgets.weather.icons_base_url")
 
 _session = requests.Session()
 _session.headers.update({"User-Agent": "edo-weather/1.0 (+contact@example.com)"})

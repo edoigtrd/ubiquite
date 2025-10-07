@@ -9,6 +9,7 @@ import json
 import datetime
 import uuid as uudid
 from functools import partial
+from backend.infrastructure.rss import fetch_latest_article_cached, Article
 
 from backend.infrastructure.config import load_config, config_check, load_main_config
 from backend.application.context import initialize_context
@@ -230,3 +231,14 @@ async def list_focuses():
         v["id"] = k
         f.append(v)
     return {"focuses": f}
+
+
+
+@app.get("/rss/get")
+async def get_rss_feed():
+    url = load_main_config().get("widgets.rss.feed", "")
+    if not url:
+        return {"error": "RSS feed URL not configured"}, 400
+
+    article = fetch_latest_article_cached(url)
+    return {"article": article}

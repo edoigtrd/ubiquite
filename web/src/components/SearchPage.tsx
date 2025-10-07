@@ -1,6 +1,10 @@
 import { motion } from "motion/react";
 import WeatherWidget from "@/components/WeatherWidget";
 import SearchBar from "@/components/SearchBar";
+import RSSWidget from "@/components/RssWidget";
+import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { useRssFeed } from "@/hooks/rss";
 
 function Title() {
   return (
@@ -25,16 +29,48 @@ function Title() {
 }
 
 export default function SearchPage() {
+
+    const { getRssFeed } = useRssFeed();
+
+    const [rssImage, setRssImage] = useState(null);
+    const [rssTitle, setRssTitle] = useState(null);
+    const [rssDescription, setRssDescription] = useState(null);
+    const [rssUrl, setRssUrl] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getRssFeed();
+      if (data && data.article) {
+        setRssImage(data.article.image || "");
+        setRssTitle(data.article.title || "No title");
+        setRssDescription(data.article.description || "No description");
+        setRssUrl(data.article.link || "");
+      }
+    };
+    fetchData();
+  }, [getRssFeed]);
+  
   return (
     <div className="w-full max-w-5xl">
       <Title />
-
-      <div className="flex justify-center">
+      <div className="mx-auto w-full max-w-3xl">
         <SearchBar />
       </div>
-      <div className="mt-6 md:mt-8 flex flex-wrap gap-4 justify-center">
-        <WeatherWidget />
-        <WeatherWidget />
+
+      <div
+        className={cn(
+          "mx-auto w-full max-w-3xl",
+          "mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4"
+        )}
+      >
+        <WeatherWidget className="basis-[420px] grow min-h-[96px]" />
+        <RSSWidget
+          className="basis-[420px] grow min-h-[96px]"
+          image={rssImage}
+          title={rssTitle}
+          description={rssDescription}
+          url= {rssUrl}
+        />
       </div>
     </div>
   );

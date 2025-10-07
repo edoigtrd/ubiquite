@@ -64,7 +64,7 @@ def strip_doc(html: str) -> str:
     return lhtml.tostring(doc, encoding="unicode")
 
 
-def retrieve_url(url: str) -> str:
+def retrieve_url(url: str, *args, **kwargs) -> str:
     response = stealth_requests.get(url)
     document = response.text
     document = strip_doc(document)
@@ -92,7 +92,7 @@ def build_tools(ctx):
     )
 
     fetch_url_tool = StructuredTool.from_function(
-        func=FailsafeWrapper(retrieve_url, ctx),
+        func=FailsafeWrapper(retrieve_url),
         name="fetch_url",
         description="Fetch a URL and convert its HTML content to Markdown.",
         args_schema=RetrieveUrlInput,

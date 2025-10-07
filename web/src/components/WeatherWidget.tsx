@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getMeteo } from "@/hooks/meteo";
 import { getUserLocation } from "@/lib/gps";
+import {cn} from "@/lib/utils";
 
 type WeatherData = {
   city: string;
@@ -10,6 +11,10 @@ type WeatherData = {
   humidity_pct: number;
   icon_url_hint?: string;
   temp_c?: number;
+};
+
+type Props = {
+  className?: string;
 };
 
 function useRealtimeFrom(iso?: string) {
@@ -26,7 +31,9 @@ function useRealtimeFrom(iso?: string) {
   return now;
 }
 
-export default function WeatherWidget() {
+export default function WeatherWidget(
+  { className }: Props
+) {
   const [data, setData] = useState<WeatherData | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +80,7 @@ export default function WeatherWidget() {
   const timeStr = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
   return (
-    <div className="w-[380px] max-w-full p-[1px] rounded-2xl bg-gradient-to-br from-white/15 to-white/0">
+    <div className={ cn("w-[380px] max-w-full p-[1px] rounded-2xl bg-gradient-to-br from-white/15 to-white/0", className) }>
       <div className="rounded-2xl border border-white/10 bg-[#16181d] p-3 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)]">
         <div className="flex items-center gap-3">
           <div className="shrink-0 w-16 h-16 rounded-xl bg-[#20242b] shadow-inner flex items-center justify-center overflow-hidden">

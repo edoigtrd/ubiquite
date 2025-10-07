@@ -123,9 +123,13 @@ endpoint = "http://host.docker.internal:6001"
 [database]
 url = "sqlite:///data/database.db"
 
-[weather]
+[widgets]
+[widgets.weather]
 open_meteo_url = "https://api.open-meteo.com/v1/forecast"
 icons_base_url = "https://raw.githubusercontent.com/basmilius/weather-icons/refs/heads/dev/design/fill/final"
+
+[widgets.rss]
+feed = "https://www.nasa.gov/feeds/iotd-feed/"
 
 [nominatim]
 url = "https://nominatim.openstreetmap.org/reverse"
