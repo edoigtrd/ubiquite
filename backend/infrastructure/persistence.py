@@ -6,7 +6,7 @@ from enum import Enum
 from sqlmodel import Session, select
 from typing import List, Union, Tuple
 from backend.infrastructure.config import load_config
-from backend.infrastructure.utils import Role
+from backend.infrastructure.utils import Role, remove_duplicates_cond
 import re
 from backend.application.url_tools import get_url_preview
 
@@ -284,6 +284,7 @@ def create_source_pipeline(
         raise ValueError("Message not found")
     urls = re.findall(r'(https?:\/[^\s)]+)', message.content)
     sources = []
+    sources = remove_duplicates_cond(sources, lambda a, b: a.url == b.url)
     for url in urls:
         preview = get_url_preview(url)
         source = Source(
