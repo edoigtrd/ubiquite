@@ -132,9 +132,11 @@ I only tested SQLite but any url supported by [SQLModel](https://sqlmodel.tiango
 
 ### Focus configuration
 
-Focus mode is a featuring that allows you to focus on a specific topic by adding conditions to the search queries.
-The conditions must be compatible with SearX search engine.
-example:
+Focus mode lets you concentrate on a specific topic by adding custom conditions to SearX search queries.
+These conditions can use **any valid SearX syntax**, such as `site:`, `file:`, `intitle:`, or others.
+
+Example:
+
 ```toml
 [focuses]
 [focuses.reddit]
@@ -142,14 +144,25 @@ cond = ["site:reddit.com"]
 name = "Reddit"
 icon = "logos:reddit-icon"
 description = "Reddit focus"
-llm_description = ""
+llm_description = """
+**Reddit focus:**
+If the user has activated the Reddit Focus, it is likely because they want to know users' opinions and get responses based on real experiences from online discussions.
+"""
 ```
-Cond is the list of conditions to add to the search queries, they will be joined with OR operator. You can add as many focuses as you want and specify how they should appear in the UI.
-- cond : List of conditions to add to the search queries. (you can set empty if the llm_description is enough)
-- name : Name of the focus (As displayed in the UI).
-- icon : Icon of the focus [from iconify](https://icones.netlify.app/collection/all)
-- description : Description of the focus (As displayed in the UI).
-- llm_description : Description of the focus to be added to the LLM system prompt.
+* **cond** — List of conditions to append to the search query.
+
+  * Multiple conditions are joined with the **OR** operator by default.
+  * If you need a different logic, you can group them manually, e.g.:
+
+    ```toml
+    cond = ["site:example.com AND file:pdf"]
+    ```
+  * You can use any SearX-compatible flags like `filetype:`, `inurl:`, `intitle:`, etc.
+  * You can also leave this list **empty** if your focus only provides additional LLM context (e.g. a behavioral mode or reasoning focus).
+* **name** — Display name of the focus (UI label).
+* **icon** — Iconify icon name. [icônes collection](https://icones.netlify.app/collection/all)
+* **description** — Shown in the UI.
+* **llm_description** — Description injected into the system prompt when this focus is active.
 
 # Architecture
 

@@ -142,7 +142,11 @@ cond = ["site:reddit.com"]
 name = "Reddit"
 icon = "logos:reddit-icon"
 description = "Reddit focus"
-llm_description = ""
+llm_description = """
+**Reddit focus:**
+If the user has activated the Focus Reddit, it is surely because he wants to know the opinion of Internet users and have a response based on the experience of sources
+Act and do your looking for
+"""
 
 [focuses.x]
 cond = ["site:x.com", "site:twitter.com"]
