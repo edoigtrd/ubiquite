@@ -6,6 +6,7 @@ from langchain.tools import StructuredTool
 from lxml import html as lhtml
 from backend.infrastructure.utils import convert_to_markdown, convert_to_yaml
 from backend.infrastructure.config import load_main_config
+from sympy import sympify, SympifyError
 
 class FailsafeWrapper:
     def __init__(self, func, *args, **kwargs):
@@ -73,6 +74,13 @@ def retrieve_url(url: str, *args, **kwargs) -> str:
     return f"Failed to retrieve URL: {response.status_code} {response.reason}"
 
 
+def math(expression: str) -> str:
+    try:
+        expr = sympify(expression)
+        return str(expr)
+    except SympifyError as e:
+        return f"Error evaluating expression: {str(e)}"
+
 class SearchInput(BaseModel):
     query: str = Field(..., description="The search query")
     language: str = Field(..., description="The language code")
@@ -81,6 +89,8 @@ class SearchInput(BaseModel):
 class RetrieveUrlInput(BaseModel):
     url: str = Field(..., description="The URL to retrieve")
 
+class MathInput(BaseModel):
+    expression: str = Field(..., description="The mathematical expression to evaluate")
 
 def build_tools(ctx):
 
@@ -98,4 +108,11 @@ def build_tools(ctx):
         args_schema=RetrieveUrlInput,
     )
 
-    return [search_tool, fetch_url_tool]
+    math_tool = StructuredTool.from_function(
+        func=FailsafeWrapper(math),
+        name="math",
+        description="Evaluate a mathematical expression (sympy.simplify).\nPlease always use this tool for math expressions.",
+        args_schema=MathInput,
+    )
+
+    return [search_tool, fetch_url_tool, math_tool]
