@@ -6,6 +6,8 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { Icon } from "@iconify/react";
 import ThinkingCapsule from "@/components/ThinkingCapsule";
+import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import SyntaxHighlighter from "react-syntax-highlighter";
 
 
 type Props = {
@@ -46,6 +48,28 @@ function normalizeMathDelimiters(md: string): string {
     .join("");
 }
 
+function CodeBlock({ inline, className, children, language }: any) {
+  if (inline) return <code className={className}>{children}</code>;
+
+  // récupère le langage du className (language-js, language-python, etc.)
+  const lang =
+    language || className?.match(/language-([\w-]+)/)?.[1] || "text";
+
+  const code = String(children).replace(/\n$/, "");
+
+  return (
+    <SyntaxHighlighter
+      language={lang}
+      style={atomOneDark}
+      showLineNumbers={false}
+      wrapLongLines
+      PreTag="div"
+    >
+      {code}
+    </SyntaxHighlighter>
+  );
+}
+
 export default function ChatMessage({ role, content, uuid , thinking, isThinking }: Props) {
   const isUser = role === "human";
 
@@ -83,9 +107,15 @@ export default function ChatMessage({ role, content, uuid , thinking, isThinking
             p: (p) => <p className="mb-2 leading-7" {...p} />,
             ul: (p) => <ul className="list-disc pl-6 mb-2" {...p} />,
             ol: (p) => <ol className="list-decimal pl-6 mb-2" {...p} />,
-            code: (p) => (
-              <code className="rounded bg-black/40 px-1.5 py-0.5 text-sm" {...p} />
-            ),
+          code: (p: any) => {
+            const language = p.className?.match(/language-([\w-]+)/)?.[1] ?? "";
+            console.log("Code block language:", language);
+            return (
+              <CodeBlock className={p.className} inline={p.inline} language={language}>
+                {p.children}
+              </CodeBlock>
+            );
+            },
             a: (p) => <a className="text-blue-400 underline hover:opacity-80" {...p} />,
             blockquote: (p) => (
               <blockquote className="border-l-2 border-white/20 pl-3 italic mb-2" {...p} />
