@@ -12,27 +12,49 @@ class SourcePreview(BaseModel):
 
 
 def get_url_preview(url: str) -> SourcePreview:
-    response = requests.get(url, timeout=5, headers={"User-Agent": "Mozilla/5.0"})
+    headers = {"User-Agent": "Mozilla/5.0"}
+    response = requests.get(url, timeout=5, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
 
-    def get_meta(property_name):
+    def get_meta(property_name: str) -> str | None:
         tag = soup.find("meta", property=property_name) or soup.find("meta", attrs={"name": property_name})
         return tag["content"].strip() if tag and "content" in tag.attrs else None
 
-    preview = {
-        "title": get_meta("og:title"),
-        "description": get_meta("og:description") or get_meta("description"),
-        "image": get_meta("og:image"),
-        "url": get_meta("og:url") or url,
-        "site_name": get_meta("og:site_name") or urlparse(url).netloc
-    }
+    # --- Reddit ---
+    if "reddit" in urlparse(url).netloc:
+        jpage = requests.get(f"{url}.json", timeout=5, headers=headers).json()
+        if isinstance(jpage, list) and jpage:
+            children = jpage[0].get("data", {}).get("children", [])
+            if children:
+                post = children[0].get("data", {})
+                return SourcePreview(
+                    title=post.get("title"),
+                    description=post.get("selftext") or post.get("title"),
+                    image=post.get("thumbnail") if post.get("thumbnail", "").startswith("http") else None,
+                    url=url,
+                    site_name="Reddit"
+                )
 
-    if not preview["image"]:
-        parsed = urlparse(url)
+    # --- General metadata ---
+    title = get_meta("og:title")
+    description = get_meta("og:description") or get_meta("description")
+    image = get_meta("og:image") or get_meta("twitter:image")
+    site_name = get_meta("og:site_name") or urlparse(url).netloc
+    final_url = get_meta("og:url") or url
+
+    # --- Fallback favicon ---
+    if not image:
         favicon_tag = soup.find("link", rel=lambda x: x and "icon" in x.lower())
         if favicon_tag and favicon_tag.get("href"):
-            preview["image"] = urljoin(url, favicon_tag["href"])
+            image = urljoin(url, favicon_tag["href"])
         else:
-            preview["image"] = f"{parsed.scheme}://{parsed.netloc}/favicon.ico"
+            parsed = urlparse(url)
+            image = f"{parsed.scheme}://{parsed.netloc}/favicon.ico"
 
-    return SourcePreview(**preview)
+    return SourcePreview(
+        title=title,
+        description=description,
+        image=image,
+        url=final_url,
+        site_name=site_name
+    )
