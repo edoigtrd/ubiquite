@@ -76,7 +76,7 @@ def retrieve_url(url: str, *args, **kwargs) -> str:
 
 def math(expression: str) -> str:
     try:
-        expr = sympify(expression)
+        expr = sympify(expression).n()
         return str(expr)
     except SympifyError as e:
         return f"Error evaluating expression: {str(e)}"
