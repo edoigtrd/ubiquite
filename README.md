@@ -12,6 +12,7 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 - **KaTeX support**: Math rendering with KaTeX.
 
 ![Interface](assets/interface.png)
+*MistralAI • magistral-medium-latest*
 
 # Features
 
