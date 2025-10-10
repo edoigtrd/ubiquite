@@ -17,6 +17,8 @@ export default function DiscoverPage() {
             </motion.h1>
           </div>
         </div>
+      <img src="https://media1.tenor.com/m/ZPgI5dVr6-kAAAAC/chillin-chilling.gif" className="mx-auto mt-20 rounded-lg" /> 
+      <p className="text-center mt-4">Not implemented yet</p>
       </div>
     </div>
   );
