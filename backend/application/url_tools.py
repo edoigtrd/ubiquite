@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin, urlunparse
 from pydantic import BaseModel, Field
 
 class SourcePreview(BaseModel):
@@ -10,6 +10,10 @@ class SourcePreview(BaseModel):
     url: str
     site_name: str | None = None
 
+def remove_url_params(url: str) -> str:
+    parsed = urlparse(url)
+    clean = parsed._replace(query="", fragment="")
+    return urlunparse(clean)
 
 def get_url_preview(url: str) -> SourcePreview:
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -22,7 +26,8 @@ def get_url_preview(url: str) -> SourcePreview:
 
     # --- Reddit ---
     if "reddit" in urlparse(url).netloc:
-        jpage = requests.get(f"{url}.json", timeout=5, headers=headers).json()
+        jpage = requests.get(f"{remove_url_params(url)}.json", timeout=5, headers=headers)
+        jpage = jpage.json() if jpage.status_code == 200 else None
         if isinstance(jpage, list) and jpage:
             children = jpage[0].get("data", {}).get("children", [])
             if children:
