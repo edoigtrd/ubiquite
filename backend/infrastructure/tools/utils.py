@@ -10,15 +10,18 @@ from sympy import sympify, SympifyError
 
 
 class FailsafeWrapper:
-    def __init__(self, func, *args, **kwargs):
+    def __init__(self, func, ctx=None, *args, **kwargs):
         self.func = func
         self.args = args
         self.kwargs = kwargs
+        self.ctx = ctx
 
     def __call__(self, *args, **kwargs):
         # sum self.args and self.kwargs with args and kwargs
         args = self.args + args
         kwargs = {**self.kwargs, **kwargs}
+        if "ctx" in self.func.__code__.co_varnames and self.ctx is not None:
+            kwargs["ctx"] = self.ctx
         try:
             return self.func(*args, **kwargs)
         except Exception as e:
