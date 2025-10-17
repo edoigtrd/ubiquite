@@ -1,9 +1,9 @@
 import requests
 from typing import Tuple, Dict
 from backend.infrastructure.config import load_main_config
+from backend.infrastructure.geo import reverse_geocode_city
 
 _cfg = load_main_config()
-_NOMINATIM = _cfg.get("nominatim.url")
 _OPENMETEO = _cfg.get("widgets.weather.open_meteo_url")
 _ICON_BASE = _cfg.get("widgets.weather.icons_base_url")
 
@@ -11,15 +11,6 @@ _session = requests.Session()
 _session.headers.update({"User-Agent": "edo-weather/1.0 (+contact@example.com)"})
 
 
-def reverse_geocode_city(lat: float, lon: float) -> str:
-    r = _session.get(
-        _NOMINATIM,
-        params={"lat": lat, "lon": lon, "format": "json", "addressdetails": 1},
-        timeout=10,
-    )
-    r.raise_for_status()
-    a = r.json().get("address", {})
-    return a.get("city") or a.get("town") or a.get("village") or a.get("municipality") or r.json().get("display_name", "")
 
 
 def fetch_open_meteo(lat: float, lon: float) -> dict:
