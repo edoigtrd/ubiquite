@@ -21,3 +21,4 @@ tomli==2.2.1
 uvicorn==0.37.0
 beautifulsoup4==4.12.2
 geojson==3.2.0
+geopy==2.4.1
