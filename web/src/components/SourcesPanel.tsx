@@ -55,7 +55,6 @@ export default function SourcesPanel({ messageUuid }: Props) {
     getSources(messageUuid).then((res) => {
       setSources(res.data.sources);
     });
-    console.log(sources);
   }
 
   useffect(() => {
