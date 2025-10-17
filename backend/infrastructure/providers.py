@@ -8,6 +8,7 @@ PROVIDERS = {
     "mistral": ("langchain_mistralai", "ChatMistralAI"),
     "groq": ("langchain_groq", "ChatGroq"),
     "anthropic": ("langchain_anthropic", "ChatAnthropic"),
+    "ollama": ("langchain_ollama", "ChatOllama"),
 }
 
 

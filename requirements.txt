@@ -8,6 +8,7 @@ langchain-openai==0.3.7
 langchain-mistralai==0.2.5
 langchain-groq==0.2.3
 langchain-anthropic==0.3.21
+langchain-ollama==0.2.3
 lxml==5.3.1
 openai==1.109.1
 pydantic==2.11.10

@@ -64,7 +64,8 @@ Supported providers are:
 - anthropic
 - groq
 - mistral
-- openai
+- openai (+ any openai compatible endpoint such as xai, nous ...)
+- ollama
 
 *Note: the codebase make it easy to add new providers, look into infrastructure/providers.py*
 

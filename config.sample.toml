@@ -25,6 +25,11 @@ openai_api_base = "https://api.x.ai/v1"
 type = "anthropic"
 api_key = ""
 
+[provider.ollama]
+type = "ollama"
+base_url = "http://localhost:11434"
+# base_url = "http://host.docker.internal:11434" # Use this line if running inside Docker
+
 [models]
 [models.fast]
 provider = "groq"
