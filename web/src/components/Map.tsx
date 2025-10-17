@@ -8,6 +8,7 @@ import centroid from "@turf/centroid";
 import bbox from "@turf/bbox";
 import { featureCollection, point } from "@turf/helpers";
 import "leaflet/dist/leaflet.css";
+import pinIcon from "@/assets/MaterialSymbolsLocationOn.svg";
 
 type Props = {
   className?: string;
@@ -75,7 +76,7 @@ function AutoZoom({ center, bounds }: { center: [number, number]; bounds: L.LatL
 }
 
 const customIcon = L.icon({
-  iconUrl: "../public/MaterialSymbolsLocationOn.svg",
+  iconUrl: pinIcon,
   iconSize: [36, 36],
   iconAnchor: [18, 36],
   popupAnchor: [0, -32]
