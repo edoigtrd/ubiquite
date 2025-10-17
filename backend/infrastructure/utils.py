@@ -54,3 +54,6 @@ def remove_duplicates_cond(lst: Iterable[T], eq: Callable[[T, T], bool]) -> List
             uniques_idx.append(i)
 
     return [lst[i] for i in uniques_idx]
+
+def s(*lines: str) -> str:
+    return "".join(lines)

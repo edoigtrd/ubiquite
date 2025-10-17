@@ -61,12 +61,20 @@ class Source(SQLModel, table=True):
     uuid: str = Field(default_factory=lambda: str(uuid4()), index=True, unique=True)
     message_id: int = Field(foreign_key="message.id")
     message_uuid: str = Field(foreign_key="message.uuid")
-    conversation_id : int | None = None
+    conversation_id : int | None = Field(default=None, nullable=True, foreign_key="conversation.id")
     title: str
     description: str | None = None
     image : str | None = None
     url: str
     site_name: str | None = None
+
+class Map(SQLModel, table=True):
+    id : int | None = Field(default=None, primary_key=True)
+    uuid: str = Field(default_factory=lambda: str(uuid4()), index=True, unique=True)
+    message_id : int | None = Field(default=None, nullable=True)
+    message_uuid : str | None = Field(default=None, index=True)
+    conversation_id : int | None = Field(default=None, nullable=True)
+    geojson : str | None = None
 
 def create_conversation() -> Conversation:
     conv = Conversation(title=None)
@@ -93,6 +101,11 @@ def get_message_by_uuid(message_uuid: str) -> Message | None:
         result = session.exec(statement).first()
         return result
 
+def get_message_by_id(message_id: int) -> Message | None:
+    with Session(get_engine()) as session:
+        statement = select(Message).where(Message.id == message_id)
+        result = session.exec(statement).first()
+        return result
 
 def create_message(
     role: Role,
@@ -309,3 +322,57 @@ def get_sources_by_message_uuid(message_uuid: str) -> List[Source]:
         statement = select(Source).where(Source.message_uuid == message_uuid)
         results = session.exec(statement).all()
         return results
+
+def create_map_entry(
+    message_uuid: str,
+    geojson_str: str
+) -> Map:
+
+    with Session(get_engine()) as session:
+        statement = select(Map).where(Map.message_uuid == message_uuid)
+        existing = session.exec(statement).all()
+        for emap in existing:
+            session.delete(emap)
+        session.commit()
+
+    map_entry = Map(
+        message_uuid=message_uuid,
+        geojson=geojson_str
+    )
+    with Session(get_engine()) as session:
+        session.add(map_entry)
+        session.commit()
+        session.refresh(map_entry)
+    return map_entry
+
+def resolve_message_maps_references(message_uuid: str) -> None :
+    print(f"Resolving map references for message UUID: {message_uuid}")
+    with Session(get_engine()) as session:
+        statement = select(Map).where(Map.message_uuid == message_uuid)
+        results = session.exec(statement).all()
+        for map_entry in results:
+            message = get_message_by_uuid(message_uuid)
+            if message is not None:
+                map_entry.message_id = message.id
+                map_entry.conversation_id = message.conversation_id
+                session.add(map_entry)
+        session.commit()
+
+def resolve_message_attachments(message_uuid: str) -> List[dict] :
+    attachments = []
+    attachments_resolvers = [
+        resolve_map_attachment
+    ]
+    for resolver in attachments_resolvers:
+        att = resolver(message_uuid)
+        if att :
+            attachments.append(att)
+    return attachments
+
+def resolve_map_attachment(message_uuid: str) -> dict | None :
+    with Session(get_engine()) as session:
+        statement = select(Map).where(Map.message_uuid == message_uuid)
+        result = session.exec(statement).first()
+        if result is None:
+            return None
+        return {"type":'map',"content": result.geojson}

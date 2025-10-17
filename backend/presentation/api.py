@@ -78,7 +78,7 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
 
     new_message_uuid = uudid.uuid4()
 
-    def inner_callback(message: list[MessageOutput]):
+    def save_message_to_db_callback(message: list[MessageOutput]):
         message = message[-1]
         db.create_message(
             role=db.Role.ASSISTANT,
@@ -87,6 +87,7 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
             uuid=new_message_uuid,
             thoughts=message.thinking_content,
         )
+        db.resolve_message_maps_references(new_message_uuid)
 
     def make_title_callback(messages: List[MessageOutput]):
         title_ctx = initialize_context(
@@ -103,7 +104,7 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
         title_candidate = title_candidate["output"].strip().strip('"').strip("'")
         db.set_title(db_conversation.id, title_candidate)
 
-    callback_handler = BasicCallbackHandler(inner_callback)
+    callback_handler = BasicCallbackHandler(save_message_to_db_callback)
 
     try:
         additional_context = json.loads(additional_context)
@@ -119,6 +120,7 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
         tool_choice=[],
         history=history,
         focus=focus,
+        current_message_id=new_message_uuid,
     )
 
     handler.queue.put_nowait(
@@ -169,7 +171,10 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
 async def get_sources(uuid: str):
     sources = db.get_sources_by_message_uuid(uuid)
     if not sources or len(sources) == 0:
-        sources = db.create_source_pipeline(uuid)
+        try :
+            sources = db.create_source_pipeline(uuid)
+        except ValueError as e:
+            return {"error": str(e), "sources": []}, 500
     return {"sources": sources}
 
 @app.get("/conversation/read")
@@ -187,6 +192,11 @@ async def read_conversation(conversation_id: int | None = Query(None), uuid: UUI
 
     cid = conversation.id if hasattr(conversation, "id") else conversation_id
     messages = db.get_conversation_chain_messages(cid)
+    messages = [messages.model_dump() for messages in messages]
+
+    messages = [
+        x | {"attachments" : db.resolve_message_attachments(x["uuid"])} for x in messages
+    ]
 
     return {"conversation": conversation, "messages": messages}
 

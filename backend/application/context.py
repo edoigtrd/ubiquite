@@ -16,6 +16,7 @@ class Context:
     model: Optional[ModelConfig] = None
     history: List[Any] = field(default_factory=list)
     focus: Optional[str] = None
+    current_message_id : Optional[str] = None
 
     def _rebind_llm(self):
         if self.base_llm is None:
@@ -52,10 +53,10 @@ class Context:
 
 
 def initialize_context(cfg, task: str, model: str, additional_context: str, callbacks: Optional[List[Any]] = None,
-                       tool_choice: Optional[str] = "search_searx", history: Optional[List[Any]] = None, focus: Optional[str] = None) -> Context:
+                       tool_choice: Optional[str] = "search_searx", history: Optional[List[Any]] = None, focus: Optional[str] = None, current_message_id: Optional[int] = None) -> Context:
     callbacks = callbacks or []
     ctx = Context(cfg=cfg, task=task, additional_context=additional_context, callbacks=list(callbacks),
-                  tool_choice=tool_choice, model=model, history=history, focus=focus)
+                  tool_choice=tool_choice, model=model, history=history, focus=focus, current_message_id=current_message_id)
 
     model_ = get_model(cfg, model)
     base_llm = model_.cls(streaming=True, **model_.config)
