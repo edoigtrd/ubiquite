@@ -10,8 +10,9 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 - **Easy model switching**: You can easily switch between models for different use cases while maintaining the ability to connect to multiple AI providers.
 - **Unified and complete configuration**: All configuration is done in a single file, with all the options available for each provider and model, this file is editable from the UI.
 - **KaTeX support**: Math rendering with KaTeX.
+- **Map Tool**: A tool that allows the LLM to generate maps based on user queries.
 
-![Interface](assets/interface.png)
+[![Map Tool](assets/map-tool.png)](assets/map-tool.png)
 *MistralAI • magistral-medium-latest*
 
 # Features
@@ -165,6 +166,11 @@ If the user has activated the Reddit Focus, it is likely because they want to kn
 * **description** — Shown in the UI.
 * **llm_description** — Description injected into the system prompt when this focus is active.
 
+# Map Tool
+
+The map tool (my personnal favorite feature) allows the LLM to answer geolocation related questions by generating a GeoJSON object that is then rendered as an interactive map.
+The map tool uses the Nominatim API for geocoding, you can configure the Nominatim URL in the configuration file.
+
 # Architecture
 
 Ubiquité is composed of two main parts:
@@ -183,4 +189,4 @@ If you'd like to add features or improve the project, please fork the repo and s
 
 - [ ] Image search
 - [ ] Discovery page
-- [ ] Better settings page
+- [ ] Better settings page (i think we can't do better actually :D)
