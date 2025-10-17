@@ -8,7 +8,14 @@ import { Icon } from "@iconify/react";
 import ThinkingCapsule from "@/components/ThinkingCapsule";
 import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import SyntaxHighlighter from "react-syntax-highlighter";
+import Map from "@/components/Map";
 
+
+
+type Attachment = {
+  type: "map";
+  content: string; // JSON stringified map data
+};
 
 type Props = {
   role: "human" | "ai";
@@ -16,6 +23,7 @@ type Props = {
   uuid?: string;
   thinking?: string | undefined | null;
   isThinking?: boolean | undefined | null;
+  attachments?: Attachment[];
 };
 
 // Convert \(...\) -> $...$ et \[...\] -> $$...$$
@@ -70,7 +78,7 @@ function CodeBlock({ inline, className, children, language }: any) {
   );
 }
 
-export default function ChatMessage({ role, content, uuid , thinking, isThinking }: Props) {
+export default function ChatMessage({ role, content, uuid , thinking, isThinking, attachments }: Props) {
   const isUser = role === "human";
 
   // Pré-normaliser les délimiteurs math avant ReactMarkdown
@@ -93,6 +101,20 @@ export default function ChatMessage({ role, content, uuid , thinking, isThinking
         </div>
         {thinking && <ThinkingCapsule content={thinking} isThinking={isThinking} />}
 
+        {
+          attachments?.map((att, index) => {
+            if (att.type === "map") {
+              return (
+                <Map data={att.content} key={index}
+                  className="w-full h-[420px]"
+                />
+              );
+            }
+          }
+        )
+        }
+
+
         <ReactMarkdown
           remarkPlugins={[
             remarkGfm,
@@ -109,7 +131,6 @@ export default function ChatMessage({ role, content, uuid , thinking, isThinking
             ol: (p) => <ol className="list-decimal pl-6 mb-2" {...p} />,
           code: (p: any) => {
             const language = p.className?.match(/language-([\w-]+)/)?.[1] ?? "";
-            console.log("Code block language:", language);
             return (
               <CodeBlock className={p.className} inline={p.inline} language={language}>
                 {p.children}

@@ -2,7 +2,6 @@ import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Icon } from "@iconify/react";
 import ChatMessage from "@/components/ChatMessage";
 import { getChat } from "@/hooks/chat";
@@ -15,9 +14,21 @@ import { chatStream } from "@/signals/chatStream";
 import SourcesPanel from "./SourcesPanel";
 
 import { submittedQuery, clearQuery } from "@/signals/search";
-import ThinkingCapsule from "./ThinkingCapsule";
 
-type Msg = { uuid: string; role: "human" | "ai"; content: string; thinking: string | null | undefined , thoughts?: string | null | undefined};
+type Attachment = {
+  type: "map";
+  content: string; // JSON stringified map data
+};
+
+type Msg = { 
+  uuid: string; 
+  role: "human" | "ai";
+  content: string; 
+  thinking: string | null | undefined; 
+  thoughts?: string | null | undefined; 
+  attachments?: Attachment[] 
+};
+
 type Props = { chatId?: string };
 
 
@@ -73,6 +84,7 @@ export default function ChatPage({ chatId }: Props) {
         role: m.role === "ai" ? "ai" : "human",
         content: m.content ?? "",
         thinking: m.thoughts ?? null,
+        attachments: m.attachments ?? [],
       })
     );
     setMessages(fetched);
@@ -303,6 +315,7 @@ export default function ChatPage({ chatId }: Props) {
                     thinking={currentThinking}
                     isThinking={true}
                     content={m.content}
+                    attachments={m.attachments}
                   />
                 );
               })}
