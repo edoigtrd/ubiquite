@@ -106,7 +106,7 @@ export default function ChatMessage({ role, content, uuid , thinking, isThinking
             if (att.type === "map") {
               return (
                 <Map data={att.content} key={index}
-                  className="w-full h-[420px]"
+                  className="w-full h-[420px] my-4 rounded-lg rounded-xl border border-white/10 overflow-hidden bg-[#0b0d12]"
                 />
               );
             }
