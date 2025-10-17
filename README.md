@@ -20,6 +20,7 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 - Multiple LLM providers (OpenAI, Mistral, Groq, Nous, XAI)
 - Unified and complete configuration.
 - Streaming responses.
+- Url query search. (http://localhost:6003/?q=What+is+the+capital+of+France?)
 
 # Installation (with Docker)
 
