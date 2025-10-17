@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
 import functools
+from ..application.url_tools import get_url_preview, SourcePreview
 
 class Article(BaseModel):
     title: str
@@ -52,6 +53,13 @@ def fetch_latest_article(url: str) -> Article:
             enclosure = item.find("enclosure")
             if enclosure is not None and enclosure.get("type", "").startswith("image/"):
                 image = enclosure.get("url")
+        if not image:
+            try:
+                preview = get_url_preview(link)
+                image = preview.image
+            except Exception:
+                image = None
+
         return Article(title=title, link=link, description=desc, pub_date=pub, image=image)
 
     # Atom 1.0
