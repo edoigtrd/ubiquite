@@ -4,7 +4,8 @@ from enum import Enum
 from timezonefinder import TimezoneFinder
 import zoneinfo
 from functools import lru_cache
-from typing import Iterable, Callable, List, TypeVar
+from typing import Iterable, Callable, List, Tuple, TypeVar
+import re
 
 T = TypeVar("T")
 
@@ -57,3 +58,12 @@ def remove_duplicates_cond(lst: Iterable[T], eq: Callable[[T, T], bool]) -> List
 
 def s(*lines: str) -> str:
     return "".join(lines)
+
+def sanitize_string(text: str) -> str:
+    # The messages may contain { and } which interfere with langchain, we need to escape them
+    text = re.sub(r'(?<!{){(?!{)', '{{', text)  # { → {{
+    text = re.sub(r'(?<!})}(?!})', '}}', text)  # } → }}
+    return text
+
+def sanitize_messages(messages: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+    return [(role, sanitize_string(content)) for role, content in messages]

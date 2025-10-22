@@ -4,7 +4,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from backend.infrastructure.config import load_main_config
 from backend.infrastructure.tools import build_tools
 from backend.application.prompts import build_common_prompt
-from backend.infrastructure.utils import convert_to_yaml
+from backend.infrastructure.utils import convert_to_yaml, sanitize_messages
 
 
 
@@ -32,7 +32,7 @@ def build_search_executor(ctx) -> AgentExecutor:
     template = template.format(additional_context=additional_context, focus_info=focus_info)
     prompt = ChatPromptTemplate.from_messages([
         ("system", template),
-        *ctx.history,
+        *sanitize_messages(ctx.history),
         ("placeholder", "{agent_scratchpad}"),
     ])
 

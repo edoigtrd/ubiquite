@@ -16,7 +16,7 @@ from backend.application.context import initialize_context
 from backend.application.agent import build_search_executor, build_title_executor
 from backend.infrastructure.meteo import get_weather_snapshot, reverse_geocode_city
 from backend.infrastructure.callbacks import StreamingCallbackHandler, BasicCallbackHandler, MessageOutput, LLMEndCallbackHandler
-from backend.infrastructure.utils import get_timezone
+from backend.infrastructure.utils import get_timezone, sanitize_messages, sanitize_string
 from backend.infrastructure import persistence as db
 
 
@@ -100,7 +100,7 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
             history=[],
         )
         title_executor = build_title_executor(title_ctx)
-        title_candidate = title_executor.invoke({"input": "USER : {}\n\n\nASSISTANT : {}".format(q, messages[-1].content)})
+        title_candidate = title_executor.invoke({"input": "USER : {}\n\n\nASSISTANT : {}".format(sanitize_string(q), sanitize_string(messages[-1].content))})
         title_candidate = title_candidate["output"].strip().strip('"').strip("'")
         db.set_title(db_conversation.id, title_candidate)
 
@@ -145,14 +145,15 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
         ctx.add_callback(title_callback_handler)
 
     async def run_task():
+        print(q, sanitize_string(q), flush=True)
         try:
             loop = asyncio.get_running_loop()
 
             def _call():
                 try:
-                    return executor.invoke({"input": q}, config={"callbacks": ctx.callbacks}, stream=True)
+                    return executor.invoke({"input": sanitize_string(q)}, config={"callbacks": ctx.callbacks}, stream=True)
                 except TypeError:
-                    return executor.invoke({"input": q}, stream=True)
+                    return executor.invoke({"input": sanitize_string(q)}, stream=True)
 
             res = loop.run_in_executor(None, _call)
             await res
