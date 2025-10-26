@@ -168,10 +168,29 @@ If the user has activated the Reddit Focus, it is likely because they want to kn
 * **description** — Shown in the UI.
 * **llm_description** — Description injected into the system prompt when this focus is active.
 
-# Map Tool
+# Map Tool (Nominatim / Geocoder Configuration)
 
-The map tool (my personnal favorite feature) allows the LLM to answer geolocation related questions by generating a GeoJSON object that is then rendered as an interactive map.
-The map tool uses the Nominatim API for geocoding, you can configure the Nominatim URL in the configuration file.
+The map tool (my personal favorite feature) allows the LLM to answer geolocation-related questions by generating a GeoJSON object that is then rendered as an interactive map.  
+It relies on any `geopy` geocoder for address lookup, and you can configure the geocoder URL in the configuration file.
+
+By default, the map tool uses the public OpenStreetMap Nominatim instance.  
+It is **not recommended for heavy usage**, as it enforces strict rate limits and usage policies that may lead to increased errors.  
+You can either host your own instance or use a different geocoding provider by changing the `cls` parameter in the `[nominatim]` section of the configuration file.
+
+For example, here is my personal GoogleV3 configuration:
+```toml
+[nominatim]
+cls = "geopy.geocoders.GoogleV3"
+api_key = ""
+ratelimiter = { min_delay_seconds = 1.0 }
+```
+
+`cls` refers to the full import path of the `geopy` geocoder class you want to use.
+You can find the list of supported classes [here](https://geopy.readthedocs.io/en/stable/#module-geopy.geocoders).
+
+I haven’t tested all geocoders, so please refer to the `geopy` documentation for details on how to configure each one.
+If your geocoder doesn’t work properly with Ubiquité, it’s probably because its response paths are not compatible with `reverse_geocode_city` in [geo.py](./backend/infrastructure/geo.py).
+In that case, please open an issue or a pull request.
 
 # Architecture
 

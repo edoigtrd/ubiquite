@@ -137,7 +137,9 @@ icons_base_url = "https://raw.githubusercontent.com/basmilius/weather-icons/refs
 feed = "https://www.nasa.gov/feeds/iotd-feed/"
 
 [nominatim]
-url = "nominatim.openstreetmap.org"
+cls = "geopy.geocoders.Nominatim"
+domain = "nominatim.openstreetmap.org"
+ratelimiter = {min_delay_seconds= 1.0}
 
 [server]
 allowed_origins = [
