@@ -32,7 +32,7 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 
 2. Move the example configuration file:
    ```bash
-   mv config.example.toml config.toml
+   mv config.sample.toml config.toml
    ```
 
 3. Run the application using Docker Compose:
@@ -46,7 +46,7 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 
 # How to configure
 
-Move `config.example.toml` to `config.toml` and fill in the required fields.
+Move `config.sample.toml` to `config.toml` and fill in the required fields.
 
 In this file you can configure:
 
