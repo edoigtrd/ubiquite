@@ -26,8 +26,8 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 
 1. Clone the repository:
    ```bash
-   git clone git@github.com:edoigtrd/ubiquite.git
-    cd ubiquite
+   git clone https://github.com/edoigtrd/ubiquite.git
+   cd ubiquite
     ```
 
 2. Move the example configuration file:
