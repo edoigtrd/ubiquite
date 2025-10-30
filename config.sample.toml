@@ -79,6 +79,9 @@ Citation Format:
 
 Additional information:
 {additional_context}
+
+User focus :
+{focus_info}
 """
 
 [prompts.related]
