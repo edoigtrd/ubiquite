@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
         target: proxyTarget,
         changeOrigin: true,
         ws: true,
-        rewrite: p => p.replace(/^\/api/, ""), // /api/chat -> /chat
+        rewrite: p => p.replace(/^\/api/, ""), // /api/chat -> /chat (rewrite)
       },
     },
   },

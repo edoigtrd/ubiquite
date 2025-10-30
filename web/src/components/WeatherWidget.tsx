@@ -5,7 +5,7 @@ import {cn} from "@/lib/utils";
 
 type WeatherData = {
   city: string;
-  local_time: string; // ISO, idéalement avec offset
+  local_time: string;
   condition: string;
   wind_kmh: number;
   humidity_pct: number;
@@ -38,7 +38,6 @@ export default function WeatherWidget(
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Always call hooks here, not inside JSX
   const now = useRealtimeFrom(data?.local_time);
 
   useEffect(() => {

@@ -1,5 +1,3 @@
-// components/ChatMessage.tsx
-// React import not required with new JSX transform
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -26,15 +24,15 @@ type Props = {
   attachments?: Attachment[];
 };
 
-// Convert \(...\) -> $...$ et \[...\] -> $$...$$
-// Gère aussi les backslashes double-échappés \\( \\[
-// Ne touche pas aux blocs de code ``` ```
+// Convert \(...\) -> $...$ and \[...\] -> $$...$$
+// Also handles double-escaped backslashes \\( \\[
+// Do not touch code blocks delimited by ``` ```
 function normalizeMathDelimiters(md: string): string {
-  // 1) découper par blocs de code pour ne PAS transformer ce qui est entre ```
+  // 1) split by code blocks so we DO NOT transform what's inside ``` code fences
   const parts = md.split(/(```[\s\S]*?```)/g);
 
   const mathify = (s: string) => {
-    // unescape minimal des doubles backslashes pour les délimiteurs math
+    // minimally unescape double backslashes for math delimiters
     s = s.replace(/\\\\\[/g, "\\[").replace(/\\\\\]/g, "\\]");
     s = s.replace(/\\\\\(/g, "\\(").replace(/\\\\\)/g, "\\)");
 
@@ -49,7 +47,7 @@ function normalizeMathDelimiters(md: string): string {
 
   return parts
     .map((chunk, i) => {
-      // morceaux impairs = blocs de code (laisser tel quel)
+      // odd parts = code blocks (leave them be)
       if (i % 2 === 1) return chunk;
       return mathify(chunk);
     })
@@ -59,7 +57,7 @@ function normalizeMathDelimiters(md: string): string {
 function CodeBlock({ inline, className, children, language }: any) {
   if (inline) return <code className={className}>{children}</code>;
 
-  // récupère le langage du className (language-js, language-python, etc.)
+  // get the language from className
   const lang =
     language || className?.match(/language-([\w-]+)/)?.[1] || "text";
 
@@ -81,7 +79,7 @@ function CodeBlock({ inline, className, children, language }: any) {
 export default function ChatMessage({ role, content, uuid , thinking, isThinking, attachments }: Props) {
   const isUser = role === "human";
 
-  // Pré-normaliser les délimiteurs math avant ReactMarkdown
+  // Pre-normalize math delimiters before ReactMarkdown
   const source = normalizeMathDelimiters(content);
 
   return (
@@ -118,10 +116,10 @@ export default function ChatMessage({ role, content, uuid , thinking, isThinking
         <ReactMarkdown
           remarkPlugins={[
             remarkGfm,
-            [remarkMath, { singleDollarTextMath: true }], // $...$ et $$...$$
+            [remarkMath, { singleDollarTextMath: true }], // $...$ and $$...$$
           ]}
           rehypePlugins={[
-            [rehypeKatex, { strict: false, throwOnError: false }], // tolérant
+            [rehypeKatex, { strict: false, throwOnError: false }], // tolerant
           ]}
           components={{
             h1: (p) => <h1 className="text-white text-xl font-semibold mb-2" {...p} />,

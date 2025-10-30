@@ -50,12 +50,12 @@ export default function TomlMonaco({ initialValue, onSave }: Props) {
     editorRef.current = editor;
     registerToml(monacoNS);
 
-    // Ctrl/Cmd+S -> lit depuis l’éditeur (pas le state)
+    // Ctrl/Cmd+S -> read from the editor
     editor.addCommand(monacoNS.KeyMod.CtrlCmd | monacoNS.KeyCode.KeyS, () => {
       void doSave();
     });
 
-    // Change -> on capture v, on valide, et l’autosave envoie v
+    // On change -> capture v, validate it, and autosave will send v
     editor.onDidChangeModelContent(() => {
       const v = editor.getValue();
       setDirty(true);
@@ -64,8 +64,7 @@ export default function TomlMonaco({ initialValue, onSave }: Props) {
       autosaveTimer.current = window.setTimeout(() => { void doSave(v); }, 1200);
     });
 
-    // optionnel si tu veux forcer la valeur initiale
-    // editor.getModel()?.setValue(initialValue);
+
     validate(initialValue);
   };
 

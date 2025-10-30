@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { cn, getCookie, setCookie } from "@/lib/utils";
-import { api } from "@/lib/api"; // ou importe listFocuses() si tu préfères
+import { api } from "@/lib/api";
 
 type Focus = {
   id: string;

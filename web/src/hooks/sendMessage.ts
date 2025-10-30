@@ -1,10 +1,8 @@
-// src/hooks/sendMessage.ts
 import { chatStream } from "@/signals/chatStream";
 import {getContextSync} from "@/lib/contextstore";
 import { getCookie } from "@/lib/utils";
 
 export async function sendMessage(parent_uuid: string | null, content: string, mode = "speed") {
-  // reset stream
   chatStream.value = [];
 
   const params = new URLSearchParams();

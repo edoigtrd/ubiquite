@@ -15,10 +15,10 @@ export default function LibraryPage() {
       try {
         const response = await getChats();
         if (mounted) {
-            // Sort by updated_at descending
-      response.data?.conversations?.sort((a: any, b: any) => {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-      });
+          // Sort by updated_at descending
+          response.data?.conversations?.sort((a: any, b: any) => {
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+          });
           setConversations(response.data?.conversations ?? []);
         }
       } catch (error) {
@@ -32,7 +32,6 @@ export default function LibraryPage() {
 
   return (
     <div className="h-full w-full bg-[#0c0d10] text-white flex flex-col min-h-0">
-      {/* Header sticky (prend sa place, ne chevauche pas le contenu) */}
       <div className="px-6 py-4 border-b border-white/10 flex items-center gap-2 justify-center sticky top-0 z-20 bg-[#0c0d10]/90 backdrop-blur">
         <Icon icon="iconoir:book-stack" className="w-15 h-15 opacity-80" />
         <motion.h1 initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="text-2xl font-semibold">

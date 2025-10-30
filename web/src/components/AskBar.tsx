@@ -27,7 +27,7 @@ export default function AskBar() {
           <ModelSelectionMenu
             value={mode}
             onChange={setMode}
-            className="h-[52px]" // match l’input
+            className="h-[52px]"
           />
           <FocusMenu className="h-[52px]" />
           <Input

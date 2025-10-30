@@ -1,7 +1,7 @@
 import { signal } from "@preact/signals-react";
 
-export const inputValue = signal("");                  // live typing
-export const submittedQuery = signal<string | null>(null); // last submitted
+export const inputValue = signal(""); // live typing
+export const submittedQuery = signal<string | null>(null); // last submitted query
 
 export function submitQuery(q?: string) {
   const v = (q ?? inputValue.value).trim();
