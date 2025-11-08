@@ -4,9 +4,11 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { Icon } from "@iconify/react";
 import ThinkingCapsule from "@/components/ThinkingCapsule";
-import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import SyntaxHighlighter from "react-syntax-highlighter";
+
 import Map from "@/components/Map";
+import MarkdownBlock from "@/components/MessageBlocks/MarkdownBlock";
+import FollowupBlock from "@/components/MessageBlocks/FollowupBlock";
+
 
 
 
@@ -54,29 +56,60 @@ function normalizeMathDelimiters(md: string): string {
     .join("");
 }
 
-function CodeBlock({ inline, className, children, language }: any) {
-  if (inline) return <code className={className}>{children}</code>;
 
-  // get the language from className
-  const lang =
-    language || className?.match(/language-([\w-]+)/)?.[1] || "text";
 
-  const code = String(children).replace(/\n$/, "");
-
-  return (
-    <SyntaxHighlighter
-      language={lang}
-      style={atomOneDark}
-      showLineNumbers={false}
-      wrapLongLines
-      PreTag="div"
-    >
-      {code}
-    </SyntaxHighlighter>
-  );
+interface Block {
+  type: "text" | "REL";
+  text: string;
+  action?: string;
 }
 
-export default function ChatMessage({ role, content, uuid , thinking, isThinking, attachments }: Props) {
+const parseRELBlocks = (input: string): Block[] => {
+  const regex = /<REL\s+action="([^"]+)">(.*?)<\/REL>/gms;
+  const blocks: Block[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(input)) !== null) {
+    const [fullMatch, action, content] = match;
+    const start = match.index;
+
+    if (start > lastIndex) {
+      blocks.push({
+        type: "text",
+        text: input.slice(lastIndex, start)
+      });
+    }
+
+    blocks.push({
+      type: "REL",
+      text: content.trim(),
+      action: action.trim()
+    });
+
+    lastIndex = start + fullMatch.length;
+  }
+
+  if (lastIndex < input.length) {
+    blocks.push({
+      type: "text",
+      text: input.slice(lastIndex)
+    });
+  }
+
+  return blocks;
+};
+
+
+
+export default function ChatMessage({
+  role,
+  content,
+  uuid,
+  thinking,
+  isThinking,
+  attachments
+}: Props) {
   const isUser = role === "human";
 
   // Pre-normalize math delimiters before ReactMarkdown
@@ -87,63 +120,47 @@ export default function ChatMessage({ role, content, uuid , thinking, isThinking
       <div
         className={[
           "w-full rounded-2xl p-4 border",
-          isUser ? "bg-[#1b1d22] border-white/10" : "bg-[#121318] border-white/10",
-          "text-neutral-300",
+          isUser
+            ? "bg-[#1b1d22] border-white/10"
+            : "bg-[#121318] border-white/10",
+          "text-neutral-300"
         ].join(" ")}
       >
         <div className="flex items-center mb-2">
           <Icon
-            icon={isUser ? "iconoir:user" : "fluent-emoji-high-contrast:peacock"}
+            icon={
+              isUser ? "iconoir:user" : "fluent-emoji-high-contrast:peacock"
+            }
             className="w-6 h-6 mb-2"
           />
         </div>
-        {thinking && <ThinkingCapsule content={thinking} isThinking={isThinking} />}
+        {thinking && (
+          <ThinkingCapsule content={thinking} isThinking={isThinking} />
+        )}
 
-        {
-          attachments?.map((att, index) => {
-            if (att.type === "map") {
-              return (
-                <Map data={att.content} key={index}
-                  className="w-full h-[420px] my-4 rounded-lg rounded-xl border border-white/10 overflow-hidden bg-[#0b0d12]"
-                />
-              );
-            }
-          }
-        )
-        }
-
-
-        <ReactMarkdown
-          remarkPlugins={[
-            remarkGfm,
-            [remarkMath, { singleDollarTextMath: true }], // $...$ and $$...$$
-          ]}
-          rehypePlugins={[
-            [rehypeKatex, { strict: false, throwOnError: false }], // tolerant
-          ]}
-          components={{
-            h1: (p) => <h1 className="text-white text-xl font-semibold mb-2" {...p} />,
-            h2: (p) => <h2 className="text-white text-lg font-semibold mb-2" {...p} />,
-            p: (p) => <p className="mb-2 leading-7" {...p} />,
-            ul: (p) => <ul className="list-disc pl-6 mb-2" {...p} />,
-            ol: (p) => <ol className="list-decimal pl-6 mb-2" {...p} />,
-          code: (p: any) => {
-            const language = p.className?.match(/language-([\w-]+)/)?.[1] ?? "";
+        {attachments?.map((att, index) => {
+          if (att.type === "map") {
             return (
-              <CodeBlock className={p.className} inline={p.inline} language={language}>
-                {p.children}
-              </CodeBlock>
+              <Map
+                data={att.content}
+                key={index}
+                className="w-full h-[420px] my-4 rounded-lg rounded-xl border border-white/10 overflow-hidden bg-[#0b0d12]"
+              />
             );
-            },
-            a: (p) => <a className="text-blue-400 underline hover:opacity-80" {...p} />,
-            blockquote: (p) => (
-              <blockquote className="border-l-2 border-white/20 pl-3 italic mb-2" {...p} />
-            ),
-            hr: () => <hr className="my-4 border-white/10" />,
-          }}
-        >
-          {source}
-        </ReactMarkdown>
+          }
+        })}
+
+        {parseRELBlocks(source).map((block, index) => {
+          if (block.type === "text") {
+            return (
+              <MarkdownBlock key={index} source={block.text} />
+            );
+          } else if (block.type === "REL") {
+            return (
+              <FollowupBlock key={index} action={block.action!} text={block.text} parent={uuid} />
+            )
+          }
+        })}
       </div>
     </div>
   );

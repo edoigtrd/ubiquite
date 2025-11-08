@@ -10,6 +10,7 @@ import { sendMessage } from "@/hooks/sendMessage";
 import { useSignalEffect } from "@preact/signals-react";
 import { getCookie, countPrintableChars } from "@/lib/utils";
 import { chatStream } from "@/signals/chatStream";
+import { followup as followupSignal, clearFollowup } from "@/signals/followup";
 
 import SourcesPanel from "./SourcesPanel";
 
@@ -20,18 +21,16 @@ type Attachment = {
   content: string; // JSON stringified map data
 };
 
-type Msg = { 
-  uuid: string; 
+type Msg = {
+  uuid: string;
   role: "human" | "ai";
-  content: string; 
-  thinking: string | null | undefined; 
-  thoughts?: string | null | undefined; 
-  attachments?: Attachment[] 
+  content: string;
+  thinking: string | null | undefined;
+  thoughts?: string | null | undefined;
+  attachments?: Attachment[];
 };
 
 type Props = { chatId?: string };
-
-
 
 export default function ChatPage({ chatId }: Props) {
   const [chatTitle, setChatTitle] = useState("Chat");
@@ -53,7 +52,6 @@ export default function ChatPage({ chatId }: Props) {
   const inFlightRef = useRef<boolean>(false);
   const bootOnceRef = useRef<boolean>(false);
 
-
   const listRef = useRef<HTMLDivElement | null>(null);
   function scrollToBottom(target?: HTMLElement | null, smooth = true) {
     if (!target) return;
@@ -65,7 +63,37 @@ export default function ChatPage({ chatId }: Props) {
     );
   }
 
-  function sendMessageWrapper(parent: string | null, content: string, mode?: string) {
+  // followup signal handler
+  useSignalEffect(() => {
+    const f = followupSignal.value;
+    if (!f) return;
+
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+
+    const parent = f.parent || null;
+    newConvModeRef.current = !parent;
+
+    setUserInput(f.content);
+    setAiWriting("");
+    currentQueryRef.current = null;
+    currentResponseRef.current = null;
+
+    sendMessageWrapper(
+      parent,
+      f.content,
+      (getCookie("mode") as string) ?? undefined
+    );
+
+    clearFollowup();
+    scrollToBottom(listRef.current, false);
+  });
+
+  function sendMessageWrapper(
+    parent: string | null,
+    content: string,
+    mode?: string
+  ) {
     setThinking(null);
     setIsThinking(false);
     setAiWriting("");
@@ -84,7 +112,7 @@ export default function ChatPage({ chatId }: Props) {
         role: m.role === "ai" ? "ai" : "human",
         content: m.content ?? "",
         thinking: m.thoughts ?? null,
-        attachments: m.attachments ?? [],
+        attachments: m.attachments ?? []
       })
     );
     setMessages(fetched);
@@ -92,7 +120,11 @@ export default function ChatPage({ chatId }: Props) {
     scrollToBottom(listRef.current, false);
   }
 
-  async function refreshTitleWithRetry(convUuid: string, tries = 5, delayMs = 600) {
+  async function refreshTitleWithRetry(
+    convUuid: string,
+    tries = 5,
+    delayMs = 600
+  ) {
     for (let i = 0; i < tries; i++) {
       try {
         const data = await getChat(convUuid);
@@ -117,7 +149,11 @@ export default function ChatPage({ chatId }: Props) {
         urlNormalizedRef.current = true;
         newConvModeRef.current = false;
         hasHydratedOnceRef.current = false;
-        try { await loadConversationAndMessages(chatId); } catch { window.location.href = "/"; }
+        try {
+          await loadConversationAndMessages(chatId);
+        } catch {
+          window.location.href = "/";
+        }
       }
     })();
   }, [chatId]);
@@ -137,14 +173,14 @@ export default function ChatPage({ chatId }: Props) {
     currentQueryRef.current = null;
     currentResponseRef.current = null;
 
-  sendMessageWrapper(null, q, (getCookie("mode") as string) ?? undefined);
+    sendMessageWrapper(null, q, (getCookie("mode") as string) ?? undefined);
     scrollToBottom(listRef.current, false);
 
     clearQuery?.();
   }, [chatId]);
 
   useEffect(() => {
-  const unsub = querySignal.subscribe((q: string) => {
+    const unsub = querySignal.subscribe((q: string) => {
       if (!q) return;
       if (inFlightRef.current) return;
       inFlightRef.current = true;
@@ -156,7 +192,11 @@ export default function ChatPage({ chatId }: Props) {
         setAiWriting("");
         currentQueryRef.current = null;
         currentResponseRef.current = null;
-  sendMessageWrapper(parent, q, (getCookie("mode") as string) ?? undefined);
+        sendMessageWrapper(
+          parent,
+          q,
+          (getCookie("mode") as string) ?? undefined
+        );
         querySignal.value = "";
         scrollToBottom(listRef.current, false);
         return;
@@ -167,7 +207,7 @@ export default function ChatPage({ chatId }: Props) {
       setAiWriting("");
       currentQueryRef.current = null;
       currentResponseRef.current = null;
-  sendMessageWrapper(null, q, (getCookie("mode") as string) ?? undefined);
+      sendMessageWrapper(null, q, (getCookie("mode") as string) ?? undefined);
       querySignal.value = "";
       scrollToBottom(listRef.current, false);
     });
@@ -181,7 +221,11 @@ export default function ChatPage({ chatId }: Props) {
 
     const last = items[items.length - 1];
     let evt: any;
-    try { evt = JSON.parse(last); } catch { return; }
+    try {
+      evt = JSON.parse(last);
+    } catch {
+      return;
+    }
 
     switch (evt.event) {
       case "ok":
@@ -192,9 +236,9 @@ export default function ChatPage({ chatId }: Props) {
       case "heartbeat":
       case "llm_end":
         break;
-      case 'new_thinking_token':
+      case "new_thinking_token":
         setIsThinking(false);
-        setThinking((prev => (prev ?? "") + (evt.data || "")));
+        setThinking((prev) => (prev ?? "") + (evt.data || ""));
         break;
       case "prelude": {
         const { query_uuid, response_uuid, conversation_uuid } = evt.data || {};
@@ -215,7 +259,12 @@ export default function ChatPage({ chatId }: Props) {
           if (userInput) {
             setMessages((prev) => [
               ...prev,
-              { uuid: query_uuid, role: "human", content: userInput, thinking: null }
+              {
+                uuid: query_uuid,
+                role: "human",
+                content: userInput,
+                thinking: null
+              }
             ]);
             setUserInput(null);
             lastUuidRef.current = query_uuid;
@@ -299,13 +348,16 @@ export default function ChatPage({ chatId }: Props) {
           </div>
 
           <div className="flex-1 px-6 py-4 min-h-0">
-            <div ref={listRef} className="space-y-4 h-full overflow-y-auto scroll-hide">
+            <div
+              ref={listRef}
+              className="space-y-4 h-full overflow-y-auto scroll-hide"
+            >
               {messages.map((m, i) => {
                 const isLastAi =
                   m.role === "ai" &&
-                  messages.slice(i + 1).every(next => next.role !== "ai");
+                  messages.slice(i + 1).every((next) => next.role !== "ai");
 
-                const currentThinking = m.thinking
+                const currentThinking = m.thinking;
 
                 return (
                   <ChatMessage
@@ -319,8 +371,15 @@ export default function ChatPage({ chatId }: Props) {
                   />
                 );
               })}
-              {userInput && <ChatMessage role="human" content={userInput}  />}
-              {aiWriting && <ChatMessage role="ai" content={aiWriting} thinking={thinking} isThinking={isThinking} />}
+              {userInput && <ChatMessage role="human" content={userInput} />}
+              {aiWriting && (
+                <ChatMessage
+                  role="ai"
+                  content={aiWriting}
+                  thinking={thinking}
+                  isThinking={isThinking}
+                />
+              )}
             </div>
           </div>
 
@@ -332,9 +391,7 @@ export default function ChatPage({ chatId }: Props) {
         {/* Sidebar */}
         <div className="hidden lg:flex flex-col h-full sticky top-0 right-0">
           <div className="p-4 pt-6 h-full overflow-y-auto space-y-4">
-            <SourcesPanel
-              messageUuid={pannelUUID}
-            />
+            <SourcesPanel messageUuid={pannelUUID} />
             <Card className="bg-[#0f1014] border-white/10">
               <CardHeader>
                 <CardTitle className="text-neutral-200 flex items-center gap-2">
