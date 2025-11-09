@@ -20,7 +20,7 @@ Compared to those projects, Ubiquité aims to improve on the following points:
 - Multiple LLM providers (OpenAI, Mistral, Groq, Nous, XAI)
 - Unified and complete configuration.
 - Streaming responses.
-- Url query search. (http://localhost:6003/?q=What+is+the+capital+of+France?)
+- Url query search. ie: http://localhost:6003/?q=What+is+the+capital+of+France
 
 # Installation (with Docker)
 
@@ -209,5 +209,10 @@ If you'd like to add features or improve the project, please fork the repo and s
 # Roadmap
 
 - [ ] Image search
+- [ ] Find something to do with placeholders quick actions.
+- [ ] Logging (debugging)
+- [ ] Token usage tracking, ability to generate invoices.
+- [ ] Animation when waiting for first token.
+- [ ] Frontend responsive design.
 - [ ] Discovery page
 - [ ] Better settings page (i think we can't do better actually :D)
