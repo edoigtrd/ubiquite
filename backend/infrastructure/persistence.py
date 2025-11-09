@@ -9,6 +9,8 @@ from backend.infrastructure.config import load_config
 from backend.infrastructure.utils import Role, remove_duplicates_cond
 import re
 from backend.application.url_tools import get_url_preview
+from backend.infrastructure.rerankers import ImageResult
+
 
 ENGINE = None
 
@@ -75,6 +77,60 @@ class Map(SQLModel, table=True):
     message_uuid : str | None = Field(default=None, index=True)
     conversation_id : int | None = Field(default=None, nullable=True)
     geojson : str | None = None
+
+class Image(SQLModel, table=True) :
+    id : int | None = Field(default=None, primary_key=True)
+    uuid: str = Field(default_factory=lambda: str(uuid4()), index=True, unique=True)
+    message_id : int | None = Field(default=None, nullable=True)
+    message_uuid : str | None = Field(default=None, index=True)
+    conversation_id : int | None = Field(default=None, nullable=True)
+    
+    title: str
+    source: str
+    img : str
+    idx : int | None = Field(default=None, nullable=True)
+
+def save_message_images(
+    images : List[ImageResult],
+    message_uuid : str
+) -> None:
+    message = get_message_by_uuid(message_uuid)
+    if message is None:
+        raise ValueError("Message not found")
+    with Session(get_engine()) as session:
+        for idx, img in enumerate(images):
+            image_entry = Image(
+                message_id=message.id,
+                message_uuid=message.uuid,
+                conversation_id=message.conversation_id,
+                title=img.title,
+                source=img.source,
+                img=img.img,
+                idx=idx
+            )
+            session.add(image_entry)
+        session.commit()
+
+def retrieve_message_images(
+    message_uuid : str
+) -> List[ImageResult]:
+    message = get_message_by_uuid(message_uuid)
+    if message is None:
+        raise ValueError("Message not found")
+    
+    with Session(get_engine()) as session:
+        statement = select(Image).where(Image.message_uuid == message_uuid).order_by(Image.idx)
+        results = session.exec(statement).all()
+        images = [
+            ImageResult(
+                title=img.title,
+                url="",
+                source=img.source,
+                img=img.img
+            ).model_dump() | {"idx": idx}
+            for idx, img in enumerate(results)
+        ]
+        return images
 
 def create_conversation() -> Conversation:
     conv = Conversation(title=None)

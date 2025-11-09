@@ -6,6 +6,10 @@ import zoneinfo
 from functools import lru_cache
 from typing import Iterable, Callable, List, Tuple, TypeVar
 import re
+from PIL import Image
+import io
+import requests
+from concurrent.futures import ThreadPoolExecutor
 
 T = TypeVar("T")
 
@@ -67,3 +71,20 @@ def sanitize_string(text: str) -> str:
 
 def sanitize_messages(messages: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
     return [(role, sanitize_string(content)) for role, content in messages]
+
+def load_image_from_url(url: str) -> Image.Image:
+    try :
+        response = requests.get(url)
+        image = Image.open(io.BytesIO(response.content))
+        return image
+    except Exception as e:
+        print(f"Error loading image from {url}: {e}")
+        return None
+
+def load_images_from_urls(urls: List[str]) -> List[Image.Image]:
+    with ThreadPoolExecutor() as executor:
+        images = list(executor.map(load_image_from_url, urls))
+    return images
+
+def drop_none(l : List[T]) -> List[T]:
+    return [x for x in l if x is not None]
