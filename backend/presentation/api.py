@@ -182,7 +182,7 @@ async def get_sources(uuid: str):
     return {"sources": sources}
 
 @app.get("/images/get")
-async def get_sources(uuid: str):
+async def get_images(uuid: str):
 
     cached_images = db.retrieve_message_images(uuid)
     if len(cached_images) > 0:
