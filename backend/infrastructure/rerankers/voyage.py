@@ -33,8 +33,8 @@ class VoyageReranker(master.ImageReranker):
         
         inputs = drop_none(inputs)
         
-        images_em = self.vo.multimodal_embed(inputs, model=self.model).embeddings
-        query_em = self.vo.multimodal_embed([[user_query]], model=self.model).embeddings[0]
+        images_em = self.vo.multimodal_embed(inputs, model=self.model, input_type="document").embeddings
+        query_em = self.vo.multimodal_embed([[user_query]], model=self.model, input_type="query").embeddings[0]
 
         similarities = []
         for idx, img_em in enumerate(images_em):

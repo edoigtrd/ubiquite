@@ -8,21 +8,19 @@ class SizeReranker(master.ImageReranker):
         self.metric = metric
 
     def rerank(self, images: list[master.ImageResult], user_query: str) -> list[master.ImageResult]:
-        # Rank images by their size (width * height) in descending order (largest first)
+        # Rank images by their sizes in descending order (largest first)
         pil_images = load_images_from_urls([img.img for img in images])
         pil_images = drop_none(pil_images)
-
-        get_size = lambda im: im.size[0] * im.size[1]
-        get_diagonal = lambda im: (im.size[0]**2 + im.size[1]**2)**0.5
 
         def compute_metric(im) :
             match self.metric :
                 case "area" :
-                    return get_size(im)
+                    return im.size[0] * im.size[1]
                 case "diagonal" :
-                    return get_diagonal(im)
+                    return (im.size[0]**2 + im.size[1]**2)**0.5
                 case _ :
-                    return get_size(im)
+                    return im.size[0] * im.size[1]
+
 
         images = [
             (x, compute_metric(pil_img))
