@@ -150,6 +150,7 @@ Now, generate a title for the following conversation:
 
 [searx]
 endpoint = "http://host.docker.internal:6001"
+verify = true
 
 [database]
 url = "sqlite:///data/database.db"

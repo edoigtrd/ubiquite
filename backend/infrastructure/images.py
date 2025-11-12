@@ -5,7 +5,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from backend.infrastructure.config import load_config
 
 def search_searx_images(query: str, language: str = "fr", max_results: int = 10) -> List[Dict[str, str]]:
-    url = load_config().get("searx.endpoint", "https://searx.be") + "/search"
+    url = load_config().get("searx.endpoint", "https://searx.be")
+    verify = load_config().get("searx.verify", True)
 
     response = requests.get(
         url,
@@ -17,8 +18,8 @@ def search_searx_images(query: str, language: str = "fr", max_results: int = 10)
             "safesearch": 1,
             "num": max_results,
         },
-        verify=False,
         timeout=10,
+        verify=verify,
     )
     response.raise_for_status()
 
@@ -34,12 +35,15 @@ def search_searx_images_wrapper(query: List[str], language: str = "fr", max_resu
         for future in as_completed(futures):
             results = future.result()
             for r in results:
-                res.append(ImageResult(
-                    title=r.get("title", ""),
-                    url=r.get("url", ""),
-                    source=r.get("source", ""),
-                    img=r.get("img_src", None)
-                ))
+                try :
+                    res.append(ImageResult(
+                        title=r.get("title", ""),
+                        url=r.get("url", ""),
+                        source=r.get("source", ""),
+                        img=r.get("img_src", None)
+                    ))
+                except Exception as e:
+                    print(f"Error processing image result: {e}")
     seen_urls = set()
     unique_res = []
     for r in res:
