@@ -157,7 +157,6 @@ export default function ChatMessage({
     if (imageAttachments.length === 0 && uuid) {
       try {
         const data = await getMessageImages(uuid);
-        console.log("Loaded images for message", data);
         setImageAttachments(data);
       } catch (error) {
         console.error("Error loading images for message", error);

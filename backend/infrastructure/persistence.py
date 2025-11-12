@@ -98,7 +98,6 @@ def save_message_images(
     message = get_message_by_uuid(message_uuid)
     if message is None:
         raise ValueError("Message not found")
-    print(f"Saving {len(images)} images for message UUID: {message_uuid}", images)
     with Session(get_engine()) as session:
         for idx, img in enumerate(images):
             image_entry = Image(

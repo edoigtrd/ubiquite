@@ -148,7 +148,6 @@ async def chat(q: str, preset="fast", parent: str = None, additional_context: st
         ctx.add_callback(title_callback_handler)
 
     async def run_task():
-        print(q, sanitize_string(q), flush=True)
         try:
             loop = asyncio.get_running_loop()
 
@@ -216,8 +215,6 @@ async def get_images(uuid: str):
     images_results = search_searx_images_wrapper(images_queries, 
         max_results=load_config().get("images_search.total_max_results", 20)
     )
-
-    print(f"Image search for message {uuid} with queries {images_queries} from {parent_message.content} returned {len(images_results)} results.", flush=True)
 
     reranked = rerankers.ImageRerankerRegistry.get_default_reranker().rerank(images_results, parent_message.content if parent_message else "")
 

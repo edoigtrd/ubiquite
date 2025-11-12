@@ -104,7 +104,6 @@ export default function ImagesCapsule({
                 {/* MODE IMAGES → NORMAL */}
                 {!isEmpty &&
                   flatItems.map((item, index) => (
-                    console.log("Rendering image item", item),
                     <div
                       key={index}
                       className="flex-shrink-0 w-40 rounded-xl bg-neutral-900/80 border border-neutral-800/80 overflow-hidden group"
