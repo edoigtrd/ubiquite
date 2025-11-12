@@ -184,11 +184,15 @@ export default function ChatMessage({
             className="w-6 h-6 mb-2"
           />
           <div className="flex-1 flex justify-end items-center">
-            <Icon
-              icon="iconoir:media-image"
-              className="w-6 h-6 ml-2 mb-2 text-neutral-400 hover:text-neutral-100 cursor-pointer"
-              onClick={loadImages}
-            />
+            {
+              (!isUser && imageAttachments.length === 0 && !forceImageAttachmentsDisplay) && (
+              <Icon
+                icon="iconoir:media-image"
+                className="w-6 h-6 ml-2 mb-2 text-neutral-400 hover:text-neutral-100 cursor-pointer"
+                onClick={loadImages}
+              />)
+            }
+
           </div>
         </div>
         {(forceImageAttachmentsDisplay ||
