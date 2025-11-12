@@ -88,6 +88,7 @@ class Image(SQLModel, table=True) :
     title: str
     source: str
     img : str
+    url : str | None = None
     idx : int | None = Field(default=None, nullable=True)
 
 def save_message_images(
@@ -97,6 +98,7 @@ def save_message_images(
     message = get_message_by_uuid(message_uuid)
     if message is None:
         raise ValueError("Message not found")
+    print(f"Saving {len(images)} images for message UUID: {message_uuid}", images)
     with Session(get_engine()) as session:
         for idx, img in enumerate(images):
             image_entry = Image(
@@ -106,6 +108,7 @@ def save_message_images(
                 title=img.title,
                 source=img.source,
                 img=img.img,
+                url=img.url,
                 idx=idx
             )
             session.add(image_entry)
@@ -113,7 +116,7 @@ def save_message_images(
 
 def retrieve_message_images(
     message_uuid : str
-) -> List[ImageResult]:
+) -> List[dict]:
     message = get_message_by_uuid(message_uuid)
     if message is None:
         raise ValueError("Message not found")
@@ -417,7 +420,8 @@ def resolve_message_maps_references(message_uuid: str) -> None :
 def resolve_message_attachments(message_uuid: str) -> List[dict] :
     attachments = []
     attachments_resolvers = [
-        resolve_map_attachment
+        resolve_map_attachment,
+        resolve_images_attachments
     ]
     for resolver in attachments_resolvers:
         att = resolver(message_uuid)
@@ -432,3 +436,20 @@ def resolve_map_attachment(message_uuid: str) -> dict | None :
         if result is None:
             return None
         return {"type":'map',"content": result.geojson}
+
+def resolve_images_attachments(message_uuid: str) -> dict | None :
+    attachments = []
+    with Session(get_engine()) as session:
+        statement = select(Image).where(Image.message_uuid == message_uuid).order_by(Image.idx)
+        results = session.exec(statement).all()
+        for img in results:
+            attachments.append({
+                "type":"image",
+                "content": img.img,
+                "title": img.title,
+                "url": img.url,
+                "source": img.source
+            })
+    if attachments:
+        return {"type": "image", "content": attachments}
+    return None
