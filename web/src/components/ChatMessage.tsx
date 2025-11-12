@@ -4,12 +4,13 @@ import ThinkingCapsule from "@/components/ThinkingCapsule";
 import Map from "@/components/Map";
 import MarkdownBlock from "@/components/MessageBlocks/MarkdownBlock";
 import FollowupBlock from "@/components/MessageBlocks/FollowupBlock";
+import ImagesCapsule from "./ImagesCapsule";
+import React from "react";
 
-
-
+import { getMessageImages } from "@/hooks/images";
 
 type Attachment = {
-  type: "map";
+  type: "map" | "image";
   content: string; // JSON stringified map data
 };
 
@@ -51,8 +52,6 @@ function normalizeMathDelimiters(md: string): string {
     })
     .join("");
 }
-
-
 
 interface Block {
   type: "text" | "REL";
@@ -96,8 +95,6 @@ const parseRELBlocks = (input: string): Block[] => {
   return blocks;
 };
 
-
-
 export default function ChatMessage({
   role,
   content,
@@ -108,8 +105,65 @@ export default function ChatMessage({
 }: Props) {
   const isUser = role === "human";
 
-  // Pre-normalize math delimiters before ReactMarkdown
+  const initialAttachments = Array.isArray(attachments) ? attachments : [];
+
+  const [attachmentsState, setAttachmentsState] =
+    React.useState(initialAttachments);
+  const [forceImageAttachmentsDisplay, setForceImageAttachmentsDisplay] =
+    React.useState(false);
+
+  React.useEffect(() => {
+    if (Array.isArray(attachments)) {
+      setAttachmentsState(attachments);
+    }
+  }, [attachments]);
+
+  const imageAttachments = attachmentsState.filter(
+    (att) => att.type === "image"
+  );
+
   const source = normalizeMathDelimiters(content);
+
+  function setImageAttachments(rawData: any) {
+    // rawData = réponse de /images/get
+    // ex: { images_results: [ { title, img, url, source, ... }, ... ] }
+
+    const imagesArray = Array.isArray(rawData?.images_results)
+      ? rawData.images_results
+      : Array.isArray(rawData)
+      ? rawData
+      : [];
+
+    const formattedImages = imagesArray.map((img: any) => ({
+      type: "image",
+      content: img.img || img.url || "",
+      title: img.title || "",
+      url: img.url || "",
+      source: img.source || ""
+    }));
+
+    setAttachmentsState((prev) => [
+      ...prev,
+      {
+        type: "image",
+        content: formattedImages // ← array d’images
+      }
+    ]);
+  }
+
+  async function loadImages() {
+    setForceImageAttachmentsDisplay(true);
+
+    if (imageAttachments.length === 0 && uuid) {
+      try {
+        const data = await getMessageImages(uuid);
+        console.log("Loaded images for message", data);
+        setImageAttachments(data);
+      } catch (error) {
+        console.error("Error loading images for message", error);
+      }
+    }
+  }
 
   return (
     <div className="w-full" key={uuid}>
@@ -129,7 +183,21 @@ export default function ChatMessage({
             }
             className="w-6 h-6 mb-2"
           />
+          <div className="flex-1 flex justify-end items-center">
+            <Icon
+              icon="iconoir:media-image"
+              className="w-6 h-6 ml-2 mb-2 text-neutral-400 hover:text-neutral-100 cursor-pointer"
+              onClick={loadImages}
+            />
+          </div>
         </div>
+        {(forceImageAttachmentsDisplay ||
+          !!attachments?.some((att: any) => att.type === "image")) && (
+          <ImagesCapsule
+            items={imageAttachments.map((att: any) => att.content) as any[]}
+          />
+        )}
+
         {thinking && (
           <ThinkingCapsule content={thinking} isThinking={isThinking} />
         )}
@@ -148,13 +216,16 @@ export default function ChatMessage({
 
         {parseRELBlocks(source).map((block, index) => {
           if (block.type === "text") {
-            return (
-              <MarkdownBlock key={index} source={block.text} />
-            );
+            return <MarkdownBlock key={index} source={block.text} />;
           } else if (block.type === "REL") {
             return (
-              <FollowupBlock key={index} action={block.action!} text={block.text} parent={uuid} />
-            )
+              <FollowupBlock
+                key={index}
+                action={block.action!}
+                text={block.text}
+                parent={uuid}
+              />
+            );
           }
         })}
       </div>

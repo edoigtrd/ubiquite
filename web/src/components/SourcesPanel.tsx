@@ -80,6 +80,7 @@ export default function SourcesPanel({ messageUuid }: Props) {
             />
           ))}
         </div>
+        {/*
         <Separator className="my-4 bg-white/10" />
         <div className="grid grid-cols-1 gap-2">
           <Button
@@ -96,7 +97,7 @@ export default function SourcesPanel({ messageUuid }: Props) {
             <Icon icon="iconoir:video-camera" className="w-4 h-4 mr-2" /> Search
             videos
           </Button>
-        </div>
+        </div>*/}
       </CardContent>
     </Card>
   );
