@@ -9,6 +9,8 @@ from backend.infrastructure.config import load_config
 from backend.infrastructure.utils import Role, remove_duplicates_cond
 import re
 from backend.application.url_tools import get_url_preview
+from backend.infrastructure.rerankers import ImageResult
+
 
 ENGINE = None
 
@@ -75,6 +77,63 @@ class Map(SQLModel, table=True):
     message_uuid : str | None = Field(default=None, index=True)
     conversation_id : int | None = Field(default=None, nullable=True)
     geojson : str | None = None
+
+class Image(SQLModel, table=True) :
+    id : int | None = Field(default=None, primary_key=True)
+    uuid: str = Field(default_factory=lambda: str(uuid4()), index=True, unique=True)
+    message_id : int | None = Field(default=None, nullable=True)
+    message_uuid : str | None = Field(default=None, index=True)
+    conversation_id : int | None = Field(default=None, nullable=True)
+    
+    title: str
+    source: str
+    img : str
+    url : str | None = None
+    idx : int | None = Field(default=None, nullable=True)
+
+def save_message_images(
+    images : List[ImageResult],
+    message_uuid : str
+) -> None:
+    message = get_message_by_uuid(message_uuid)
+    if message is None:
+        raise ValueError("Message not found")
+    print(f"Saving {len(images)} images for message UUID: {message_uuid}", images)
+    with Session(get_engine()) as session:
+        for idx, img in enumerate(images):
+            image_entry = Image(
+                message_id=message.id,
+                message_uuid=message.uuid,
+                conversation_id=message.conversation_id,
+                title=img.title,
+                source=img.source,
+                img=img.img,
+                url=img.url,
+                idx=idx
+            )
+            session.add(image_entry)
+        session.commit()
+
+def retrieve_message_images(
+    message_uuid : str
+) -> List[dict]:
+    message = get_message_by_uuid(message_uuid)
+    if message is None:
+        raise ValueError("Message not found")
+    
+    with Session(get_engine()) as session:
+        statement = select(Image).where(Image.message_uuid == message_uuid).order_by(Image.idx)
+        results = session.exec(statement).all()
+        images = [
+            ImageResult(
+                title=img.title,
+                url="",
+                source=img.source,
+                img=img.img
+            ).model_dump() | {"idx": idx}
+            for idx, img in enumerate(results)
+        ]
+        return images
 
 def create_conversation() -> Conversation:
     conv = Conversation(title=None)
@@ -361,7 +420,8 @@ def resolve_message_maps_references(message_uuid: str) -> None :
 def resolve_message_attachments(message_uuid: str) -> List[dict] :
     attachments = []
     attachments_resolvers = [
-        resolve_map_attachment
+        resolve_map_attachment,
+        resolve_images_attachments
     ]
     for resolver in attachments_resolvers:
         att = resolver(message_uuid)
@@ -376,3 +436,20 @@ def resolve_map_attachment(message_uuid: str) -> dict | None :
         if result is None:
             return None
         return {"type":'map',"content": result.geojson}
+
+def resolve_images_attachments(message_uuid: str) -> dict | None :
+    attachments = []
+    with Session(get_engine()) as session:
+        statement = select(Image).where(Image.message_uuid == message_uuid).order_by(Image.idx)
+        results = session.exec(statement).all()
+        for img in results:
+            attachments.append({
+                "type":"image",
+                "content": img.img,
+                "title": img.title,
+                "url": img.url,
+                "source": img.source
+            })
+    if attachments:
+        return {"type": "image", "content": attachments}
+    return None

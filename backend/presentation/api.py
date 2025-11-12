@@ -20,6 +20,8 @@ from backend.infrastructure.callbacks import StreamingCallbackHandler, BasicCall
 from backend.infrastructure.utils import get_timezone, sanitize_messages, sanitize_string
 from backend.infrastructure import persistence as db
 
+import backend.infrastructure.rerankers as rerankers
+from backend.infrastructure.images import search_searx_images_wrapper
 
 app = FastAPI()
 
@@ -178,6 +180,55 @@ async def get_sources(uuid: str):
         except ValueError as e:
             return {"error": str(e), "sources": []}, 500
     return {"sources": sources}
+
+@app.get("/images/get")
+async def get_images(uuid: str):
+
+    cached_images = db.retrieve_message_images(uuid)
+    if len(cached_images) > 0:
+        return {"images_results": cached_images}
+
+    message = db.get_message_by_uuid(uuid)
+    if message.role != db.Role.ASSISTANT:
+        raise HTTPException(status_code=400, detail="Images can only be searched for assistant messages.")
+    parent_id = message.parent_id if message else None
+    parent_message = db.get_message_by_uuid(parent_id) if parent_id else None
+
+    images_prompt = "USER : {}\n\nASSISTANT : {}".format(
+        sanitize_string(parent_message.content) if parent_message else "",
+        sanitize_string(message.content) if message else "",
+    )
+
+    images_search_ctx = initialize_context(
+        cfg=load_config(str(CONFIG_PATH)),
+        task="image_search",
+        model="image_search",
+        additional_context={},
+        callbacks=[],
+        tool_choice=[],
+        history=[],
+    )
+    images_search_executor = build_title_executor(images_search_ctx)
+    images_queries = images_search_executor.invoke({"input": images_prompt})
+    images_queries = images_queries["output"].split("\n")
+    images_queries = [q.strip() for q in images_queries if len(q.strip()) > 0]
+
+    images_results = search_searx_images_wrapper(images_queries, 
+        max_results=load_config().get("images_search.total_max_results", 20)
+    )
+
+    print(f"Image search for message {uuid} with queries {images_queries} from {parent_message.content} returned {len(images_results)} results.", flush=True)
+
+    reranked = rerankers.ImageRerankerRegistry.get_default_reranker().rerank(images_results, parent_message.content if parent_message else "")
+
+    db.save_message_images(reranked, uuid)
+
+    # convert to dict and add an idx field
+    images_results = [
+        x.model_dump() | {"idx": idx} for idx, x in enumerate(reranked)
+    ]
+
+    return {"images_results": images_results}
 
 @app.get("/conversation/read")
 async def read_conversation(conversation_id: int | None = Query(None), uuid: UUID | None = Query(None)):

@@ -150,6 +150,7 @@ Now, generate a title for the following conversation:
 
 [searx]
 endpoint = "http://host.docker.internal:6001"
+verify = true
 
 [database]
 url = "sqlite:///data/database.db"
@@ -209,3 +210,8 @@ When the user requests a *Polymarket focus*, assume they want a **comprehensive 
 * **Never ask for clarification.** If the user query is vague or ambiguous (e.g., “Sebastien Lecornu” or “election”), simply search that **exact topic name** on Polymarket.
 * The response should be a **complete review** of all relevant Polymarket markets and their **current trends, trader sentiment, and positions**.
 """
+
+[images_search.reranker]
+class = "SizeReranker"
+[images_search.reranker.config]
+metric = "area"

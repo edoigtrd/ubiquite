@@ -209,6 +209,8 @@ If you'd like to add features or improve the project, please fork the repo and s
 # Roadmap
 
 - [ ] Image search
+- [ ] Ability to fork a conversation.
+- [ ] Deep research mode.
 - [ ] Find something to do with placeholders quick actions.
 - [ ] Logging (debugging)
 - [ ] Token usage tracking, ability to generate invoices.
