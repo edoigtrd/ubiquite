@@ -204,7 +204,6 @@ Here is the recommended configuration for reranker:
 ```toml
 [images_search.reranker]
 class = "ClipReranker"
-refinement = true
 [images_search.reranker.config]
 model_name = "hf-hub:apple/MobileCLIP-S1-OpenCLIP"
 device = "auto"
