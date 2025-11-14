@@ -25,3 +25,6 @@ geopy==2.4.1
 pillow==12.0.0
 voyageai==0.3.5
 scipy==1.16.3
+torch==2.9.1
+numpy==2.3.3
+open-clip-torch==3.2.0

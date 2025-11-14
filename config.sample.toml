@@ -212,6 +212,8 @@ When the user requests a *Polymarket focus*, assume they want a **comprehensive 
 """
 
 [images_search.reranker]
-class = "SizeReranker"
+class = "ClipReranker"
+refinement = true
 [images_search.reranker.config]
-metric = "area"
+model_name = "hf-hub:apple/MobileCLIP-S1-OpenCLIP"
+device = "auto"

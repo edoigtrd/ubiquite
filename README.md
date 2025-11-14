@@ -192,6 +192,37 @@ I haven’t tested all geocoders, so please refer to the `geopy` documentation f
 If your geocoder doesn’t work properly with Ubiquité, it’s probably because its response paths are not compatible with `reverse_geocode_city` in [geo.py](./backend/infrastructure/geo.py).
 In that case, please open an issue or a pull request.
 
+# Image search
+
+Image search is supported using the same SearX instance configured for web search.
+Under the hood the `prompts.image_search` prompt is used to generate the search query for images based on the user query.
+Then we fetch the searx instance for image results.
+Then a reranker is used to reorder the results based on their relevance to the user query.
+The default (and recommended) reranker is the `ClipReranker` which uses a CLIP model to rank the images.
+
+Here is the recommended configuration for reranker:
+```toml
+[images_search.reranker]
+class = "ClipReranker"
+refinement = true
+[images_search.reranker.config]
+model_name = "hf-hub:apple/MobileCLIP-S1-OpenCLIP"
+device = "auto"
+```
+
+You can change the `model_name` to use a different CLIP model. The list of available models can be found [here](https://huggingface.co/models?library=open_clip).
+
+If you want to write your own reranker, you can start by looking at the `ClipReranker` implementation in [clip.py](./backend/infrastructure/rerankers/clip.py).
+
+Your reranker should return a sorted list of `ImageResult` objects.
+
+ImageResult definition is in [master.py](./backend/infrastructure/rerankers/__init__.py)
+
+You'll need to register your reranker in the `ImageRerankerRegistry` to make it available for use. `master.ImageRerankerRegistry.get_default_registry().register(MyReranker)`
+And that's it!
+Note that the content of `images_search.reranker.config` will be passed to your reranker constructor as unpacked kwargs.
+
+
 # Architecture
 
 Ubiquité is composed of two main parts:
